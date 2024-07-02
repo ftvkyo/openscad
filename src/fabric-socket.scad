@@ -4,6 +4,7 @@ LAYER = NOZZLE / 2;
 side_x = 25;
 side_y = 50;
 hole = 5;
+rounding = 5;
 
 side_max = max(side_x, side_y);
 line = NOZZLE * 2;
@@ -30,7 +31,9 @@ module socket_grid() {
 
 
 module socket_footprint() {
-    square([side_x, side_y], center=true);
+    offset(rounding)
+    offset(-rounding)
+        square([side_x, side_y], center=true);
 }
 
 module socket_border() {
@@ -41,20 +44,39 @@ module socket_border() {
     }
 }
 
-module socket_hole() {
+module socket_hole_footprint() {
+    square(hole, center=true);
+}
+
+module socket_hole_border() {
     difference() {
-        square(5, center=true);
-        square(4, center=true);
+        offset(+border)
+            socket_hole_footprint();
+        socket_hole_footprint();
     }
+}
+
+module socket_holes() {
+
 }
 
 
 module socket() {
-    intersection() {
-        socket_grid();
-        socket_footprint();
+    difference() {
+        intersection() {
+            socket_grid();
+            socket_footprint();
+        }
+        translate([0, side_y / 4])
+            socket_hole_footprint();
+        translate([0, - side_y / 4])
+            socket_hole_footprint();
     }
     socket_border();
+    translate([0, side_y / 4])
+        socket_hole_border();
+    translate([0, - side_y / 4])
+        socket_hole_border();
 }
 
 

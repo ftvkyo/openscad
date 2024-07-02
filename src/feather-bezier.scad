@@ -89,16 +89,12 @@ module test() {
 }
 
 
-translate([0, 50])
-test();
-
-
 E_NOZZLE = 0.4;
 E_LAYER = E_NOZZLE / 2;
 
 
 module feather_stem(a, ac, b, bc) {
-    thickness = function(p) clamp(E_NOZZLE * 2, p * E_NOZZLE * 8, E_NOZZLE * 8);
+    thickness = function(p) clamp(E_NOZZLE * 2, p * E_NOZZLE * 12, E_NOZZLE * 10);
     stroke_bezier(a, ac, b, bc, tf = thickness);
 }
 
@@ -148,6 +144,32 @@ module feather_barbs(a, ac, b, bc) {
 }
 
 
+module socket_plug() {
+    module plug() {
+        offset(1)
+        offset(-1)
+            square(5, center=true);
+    }
+
+    rotate(14) {
+        translate([0, 0, - E_LAYER * 1.5])
+        linear_extrude(height = E_LAYER * 11) {
+            plug();
+            translate([25, 0])
+                plug();
+        }
+
+        translate([0, 0, E_LAYER * 6.5])
+        linear_extrude(height = E_LAYER * 3) {
+            translate([-2, 0])
+            plug();
+            translate([27, 0])
+                plug();
+        }
+        }
+}
+
+
 module feather() {
     a = [0, 0];
     ac = [0, 0];
@@ -158,9 +180,23 @@ module feather() {
         feather_stem(a, ac, b, bc);
     linear_extrude(E_LAYER, center = true)
         feather_barbs(a, ac, b, bc);
+}
+
+module feather_for_hat() {
+    feather();
 
     translate([10, 4, 0])
         cube([3, 60, E_LAYER * 3], center = true);
 }
 
-feather();
+module feather_for_socket() {
+    feather();
+    socket_plug();
+}
+
+
+translate([0, 50])
+test();
+
+
+feather_for_socket();

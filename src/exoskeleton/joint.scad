@@ -155,21 +155,32 @@ module joint() {
         0,
         bone_box_h / 2 - joint_h / 2,
     ])
-        rotate([0, 0, 180]) {
+        rotate([0, 0, 180])
         joint_bone_box();
+
+    translate([
+        - (joint_d + bone_box_l) / 2 - strap_width,
+        0,
+        joint_h / 4,
+    ])
+        rotate([0, 0, 180])
         joint_strap_attachment();
-    }
 
     translate([- joint_d / 4, 0, - joint_h / 4 - LAYER / 2])
-    cube([joint_d / 2, joint_d, joint_h / 2 - LAYER], center = true);
+        cube([joint_d / 2, joint_d, joint_h / 2 - LAYER], center = true);
 
     // Attachment to the secondary joint
     translate([
         joint_d / 2 + joint_h + bone_box_l / 2 + NOZZLE * 2 + strap_width,
         0,
         bone_box_h / 2 - joint_h / 2,
-    ])  {
+    ])
         joint_bone_box();
+
+    translate([
+        joint_d / 2 + joint_h + bone_box_l / 2 + NOZZLE * 2 + strap_width,
+        0,
+        joint_h / 4,
+    ])
         joint_strap_attachment();
-    }
 }

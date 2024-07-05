@@ -5,7 +5,7 @@ NOZZLE = 0.4;
 LAYER = NOZZLE / 2;
 
 module feather_stem(p0, p1, p2, p3) {
-    ft = function(t) clamp(NOZZLE * 2, (1 - t) * NOZZLE * 12, NOZZLE * 10);
+    ft = function(t) clamp(NOZZLE * 2, (1 - t) * NOZZLE * 14, NOZZLE * 12);
 
     stroke_bezier_4(p0, p1, p2, p3, 0.05, ft);
 }
@@ -63,10 +63,17 @@ module feather_barbs(p0, p1, p2, p3) {
 module attachment() {
     $fn = 6;
 
-    translate([10, 0])
+    translate([12.5, 0])
         cylinder(10, r = 1, center = true);
-    translate([-10, 0])
+    translate([-12.5, 0])
         cylinder(10, r = 1, center = true);
+}
+
+module website() {
+    url = "ftvkyo.me";
+    font = "JetBrains Mono:style=Bold";
+
+    text(url, font = font, size = 3);
 }
 
 module feather() {
@@ -79,13 +86,20 @@ module feather() {
         linear_extrude(LAYER * 5)
             feather_stem(p0, p1, p2, p3);
 
-        #translate([15, 2.75])
-            rotate(10)
+        #translate([15, 2.65])
+            rotate(9.75)
             attachment();
     }
 
-    linear_extrude(LAYER * 2)
+    color("green")
+        linear_extrude(LAYER * 2)
         feather_barbs(p0, p1, p2, p3);
+
+    color("black")
+        translate([4.5, -0.5])
+        rotate(10.5)
+        linear_extrude(LAYER * 6)
+        website();
 }
 
 

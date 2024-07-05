@@ -1,4 +1,9 @@
 /**
+    Clamp `t` between `v_min` and `v_max`.
+*/
+function clamp(v_min, t, v_max) = max(v_min, min(t, v_max));
+
+/**
     Performs linear interpolation between values `v0` and `v1`.
 
     Parameter `t` determines the weights of `v0` and `v1`.

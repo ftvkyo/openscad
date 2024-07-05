@@ -58,7 +58,15 @@ module feather_barbs(p0, p1, p2, p3) {
 
         stroke_bezier_4(a2, a2c, b2, b2c, 0.2, tf);
     }
+}
 
+module attachment() {
+    $fn = 6;
+
+    translate([10, 0])
+        cylinder(10, r = 1, center = true);
+    translate([-10, 0])
+        cylinder(10, r = 1, center = true);
 }
 
 module feather() {
@@ -67,11 +75,18 @@ module feather() {
     p2 = [125, 10];
     p3 = [200, 0];
 
-    linear_extrude(LAYER * 5)
-        feather_stem(p0, p1, p2, p3);
+    difference() {
+        linear_extrude(LAYER * 5)
+            feather_stem(p0, p1, p2, p3);
+
+        #translate([15, 2.75])
+            rotate(10)
+            attachment();
+    }
 
     linear_extrude(LAYER * 2)
         feather_barbs(p0, p1, p2, p3);
 }
+
 
 feather();

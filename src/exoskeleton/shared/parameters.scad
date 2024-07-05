@@ -3,8 +3,8 @@ LAYER = 0.2;
 E = 0.01;
 
 
-joint_h = 10;
-joint_d = 30;
+joint_h = 15;
+joint_d = 34;
 
 bone_d = 10;
 

@@ -1,34 +1,30 @@
 use <../lib/maths.scad>
+use <../lib/debug.scad>
 
 STEP = 0.05;
 
-module point(p, c) {
-    color(c)
-        translate(p)
-        circle(0.5);
-}
 
 module curve3(p0, p1, p2) {
-    for (point = bezier_3(p0, p1, p2, STEP)) {
-        translate(point)
+    for (debug_point = bezier_3(p0, p1, p2, STEP)) {
+        translate(debug_point)
             circle(0.25);
     }
 
-    point(p0, "red");
-    point(p1, "green");
-    point(p2, "blue");
+    debug_point(p0, "red");
+    debug_point(p1, "green");
+    debug_point(p2, "blue");
 }
 
 module curve4(p0, p1, p2, p3) {
-    for (point = bezier_4(p0, p1, p2, p3, STEP)) {
-        translate(point)
+    for (debug_point = bezier_4(p0, p1, p2, p3, STEP)) {
+        translate(debug_point)
             circle(0.25);
     }
 
-    point(p0, "red");
-    point(p1, "green");
-    point(p2, "blue");
-    point(p3, "black");
+    debug_point(p0, "red");
+    debug_point(p1, "green");
+    debug_point(p2, "blue");
+    debug_point(p3, "black");
 }
 
 module stroke4(p0, p1, p2, p3, ft) {
@@ -36,10 +32,10 @@ module stroke4(p0, p1, p2, p3, ft) {
 
     stroke_bezier_4(p0, p1, p2, p3, STEP, f_thickness);
 
-    point(p0, "red");
-    point(p1, "green");
-    point(p2, "blue");
-    point(p3, "black");
+    debug_point(p0, "red");
+    debug_point(p1, "green");
+    debug_point(p2, "blue");
+    debug_point(p3, "black");
 }
 
 module test_1() {

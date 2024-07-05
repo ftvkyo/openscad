@@ -50,6 +50,8 @@ function bezier_4(p0, p1, p2, p3, step) = [ for (s = [0 : step : 1]) bezier_4_si
 */
 function normal(a, b) = let (t = b - a) [-t.y, t.x] / norm(t);
 
+// TODO: calculate bezier tangents using a derivative and base normals off of that
+
 module stroke_bezier_4(p0, p1, p2, p3, step, f_thickness) {
     assert(is_list(p0) && len(p0) == 2);
     assert(is_list(p1) && len(p1) == 2);

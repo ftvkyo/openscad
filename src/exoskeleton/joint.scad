@@ -25,14 +25,14 @@ module joint_primary_slice() {
 
         // Cut between the joint parts
         polygon([
-            [joint_d / 4 - NOZZLE, - LAYER],
+            [joint_d / 4 - NOZZLE, - NOZZLE],
             [joint_d / 4 - NOZZLE, joint_h / 2 + E],
             [joint_d / 2 + E, joint_h / 2 + E],
-            [joint_d / 2 + E, joint_h / 2 - LAYER * 2],
-            [joint_d / 4, joint_h / 2 - LAYER * 2],
-            [joint_d / 4, + LAYER],
-            [joint_d / 2 + E, + LAYER],
-            [joint_d / 2 + E, - LAYER],
+            [joint_d / 2 + E, joint_h / 2 - NOZZLE],
+            [joint_d / 4, joint_h / 2 - NOZZLE],
+            [joint_d / 4, 0],
+            [joint_d / 2 + E, 0],
+            [joint_d / 2 + E, - NOZZLE],
         ]);
 
         // Remove excess of the joint cap
@@ -50,77 +50,44 @@ module joint_primary() {
         joint_primary_slice();
 }
 
-module joint_secondary_slice() {
-    // The joint is positioned horizontally,
-    // so it's diameter is the height of the primary joint
-    d = joint_h;
-    h = joint_d;
-
+module joint_extender() {
     difference() {
-        // General slice
-        polygon([
-            [0, - h / 2],
-            [0, h / 2],
-            [d / 2, h / 2],
-            [d / 2, - h / 2],
-        ]);
+        translate([joint_d / 2, 0, - NOZZLE / 2])
+            cube([joint_d, joint_d, joint_h / 2 - NOZZLE], center = true);
 
-        // Cut between the joint parts
-        polygon([
-            [d / 4 - NOZZLE, h / 4],
-            [d / 2 + E, h / 4],
-            [d / 2 + E, h / 4 - NOZZLE],
-            [d / 4, h / 4 - NOZZLE],
-            [d / 4, - h / 4 + NOZZLE],
-            [d / 2 + E, - h / 4 + NOZZLE],
-            [d / 2 + E, - h / 4],
-            [d / 4 - NOZZLE, - h / 4],
-        ]);
+        cylinder(joint_h, r = joint_d / 4, center = true);
     }
 }
 
-module joint_secondary() {
-    rotate([90, 0, 0])
-        rotate_extrude()
-        joint_secondary_slice();
-}
+module joint_elevator() {
+    translate([0, 0, - joint_h / 4])
+    intersection() {
+        rotate([0, 0, -45])
+            cube([joint_d, joint_d, joint_h / 2]);
 
-module joint_interconnect() {
-    length = (joint_d + joint_h) / 2 + NOZZLE;
-    width = joint_d / 2 - NOZZLE * 2;
-    height = joint_h / 2 - LAYER * 2;
-
-    difference() {
-        translate([0, 0, height / 2])
-            cube([length, width, height], center = true);
-
-        translate([length / 2, 0, - LAYER])
-            rotate([90, 0, 0])
-            cylinder(width + E * 2, r = joint_h / 4 + NOZZLE, center = true);
-
-        translate([- length / 2, 0, height / 2])
-            cylinder(height + E * 2, r = joint_d / 4 + NOZZLE, center = true);
+        translate([0, - joint_d / 2, 0])
+            cube([joint_d / sqrt(2), joint_d, joint_h / 2]);
     }
 }
 
 module joint_strap_attachment() {
-    joiner_l = strap_width + NOZZLE + joint_h / 2;
+    joiner_l = strap_width;
     joiner_w = joint_d / 4;
-    joiner_h = joint_h / 2 - LAYER;
+    joiner_h = joint_h / 2;
 
-    translate([
-        - (bone_box_l + joiner_l) / 2 + E,
-        (joint_d - joiner_w) / 2,
-        - joiner_h - LAYER * 1.5
-    ])
-        cube([joiner_l, joiner_w, joiner_h], center = true);
+    translate([strap_offset / 2, 0, 0]) {
+        translate([(joiner_l + strap_offset) / 2, (joint_d - joiner_w) / 2, 0])
+            cube([joiner_l, joiner_w, joiner_h], center = true);
 
-    translate([
-        - (bone_box_l + joiner_l) / 2 + E,
-        - (joint_d - joiner_w) / 2,
-        - joiner_h - LAYER * 1.5
-    ])
-        cube([joiner_l, joiner_w, joiner_h], center = true);
+        translate([(joiner_l + strap_offset) / 2, - (joint_d - joiner_w) / 2, 0])
+            cube([joiner_l, joiner_w, joiner_h], center = true);
+
+        translate([E, 0, 0])
+            cube([strap_offset, joint_d, joiner_h], center = true);
+
+        translate([joiner_l + strap_offset / 2 + joiner_h / 2 - E, 0, 0])
+            cube([joiner_h, joint_d, joiner_h], center = true);
+    }
 }
 
 module joint_bone_box() {
@@ -155,44 +122,42 @@ module joint_bone_box() {
 module joint() {
     joint_primary();
 
-    translate([(joint_d + joint_h) / 2 + NOZZLE, 0, 0])
-        joint_secondary();
+    translate([0, 0, joint_h / 4])
+        joint_extender();
 
-    translate([(joint_d + joint_h + NOZZLE) / 4, 0, 0])
-        joint_interconnect();
-
-    // Attachment to the primary joint
-    translate([
-        - (joint_d + bone_box_l) / 2 - strap_width,
-        0,
-        bone_box_h / 2 - joint_h / 2,
-    ])
-        rotate([0, 0, 180])
-        joint_bone_box();
+    translate([joint_d * sqrt(2) / 2, 0, - joint_h / 4 + E])
+        joint_elevator();
 
     translate([
-        - (joint_d + bone_box_l) / 2 - strap_width,
+        joint_d + bone_box_l / 2 - E,
         0,
-        joint_h / 4,
-    ])
-        rotate([0, 0, 180])
-        joint_strap_attachment();
-
-    translate([- joint_d / 4, 0, - joint_h / 4 - LAYER / 2])
-        cube([joint_d / 2, joint_d, joint_h / 2 - LAYER], center = true);
-
-    // Attachment to the secondary joint
-    translate([
-        joint_d / 2 + joint_h + bone_box_l / 2 + NOZZLE * 2 + strap_width,
-        0,
-        bone_box_h / 2 - joint_h / 2,
+        bone_box_h / 2 - E,
     ])
         joint_bone_box();
 
     translate([
-        joint_d / 2 + joint_h + bone_box_l / 2 + NOZZLE * 2 + strap_width,
+        joint_d * sqrt(2) - E,
         0,
-        joint_h / 4,
+        - joint_h / 4,
     ])
         joint_strap_attachment();
+
+    rotate([0, 0, 180]) {
+        translate([0, 0, - joint_h / 4])
+            joint_extender();
+
+        translate([
+            joint_d + bone_box_l / 2 - E,
+            0,
+            bone_box_h / 2 - E,
+        ])
+            joint_bone_box();
+
+        translate([
+            joint_d - E,
+            0,
+            - joint_h / 4,
+        ])
+            #joint_strap_attachment();
+    }
 }

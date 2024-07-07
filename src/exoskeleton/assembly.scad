@@ -3,4 +3,5 @@ include <bone.scad>
 include <joint.scad>
 
 
-joint();
+rotate([-90, 0, 0])
+    joint();

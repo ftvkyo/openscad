@@ -19,3 +19,4 @@ bone_box_w = bone_cap_d * 2 + NOZZLE * 3 + bone_box_wall * 2;
 bone_box_h = bone_cap_d + NOZZLE * 2 + bone_box_bottom;
 
 strap_width = 25;
+strap_offset = bone_box_l;

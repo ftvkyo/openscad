@@ -94,28 +94,18 @@ module joint_bone_box() {
     difference() {
         cube([bone_box_l, bone_box_w, bone_box_h], center = true);
 
-        translate([0, 0, bone_box_bottom / 2])
-            cube([bone_box_l - bone_box_wall * 2, bone_box_w - bone_box_wall * 2, bone_box_h - bone_box_bottom + E], center = true);
+        translate([0, 0, 0])
+            cube([bone_box_l - bone_box_wall * 2, bone_box_w - bone_box_wall * 2, bone_box_h + E], center = true);
 
         // Hole for bone
-        translate([(bone_box_l - bone_box_wall) / 2, (bone_cap_d + NOZZLE) / 2, bone_box_bottom / 2])
+        translate([(bone_box_l - bone_box_wall) / 2, (bone_cap_d + NOZZLE) / 2, 0])
             rotate([0, 90, 0])
             cylinder(bone_box_wall + E, r = bone_d / 2 + NOZZLE / 2, center = true);
 
         // Hole for bone
-        translate([(bone_box_l - bone_box_wall) / 2, - (bone_cap_d + NOZZLE) / 2, bone_box_bottom / 2])
+        translate([(bone_box_l - bone_box_wall) / 2, - (bone_cap_d + NOZZLE) / 2, 0])
             rotate([0, 90, 0])
             cylinder(bone_box_wall + E, r = bone_d / 2 + NOZZLE / 2, center = true);
-
-        // Make sure the bone cap fits
-        translate([0, - (bone_cap_d + NOZZLE) / 2, bone_box_bottom / 2])
-            rotate([0, 90, 0])
-            cylinder(bone_cap_h, r = bone_cap_d / 2, center = true);
-
-        // Make sure the bone cap fits
-        translate([0, (bone_cap_d + NOZZLE) / 2, bone_box_bottom / 2])
-            rotate([0, 90, 0])
-            cylinder(bone_cap_h, r = bone_cap_d / 2, center = true);
     }
 }
 

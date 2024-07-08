@@ -3,7 +3,7 @@ include <shared/parameters.scad>
 $fn = 36;
 
 
-module joint_primary_slice() {
+module joint_axis_slice() {
     cap_h = joint_h * 0.3;
     cap_r = joint_d * 0.4;
 
@@ -45,15 +45,15 @@ module joint_primary_slice() {
     }
 }
 
-module joint_primary() {
+module joint_axis() {
     rotate_extrude()
-        joint_primary_slice();
+        joint_axis_slice();
 }
 
 module joint_extender() {
     difference() {
-        translate([joint_d / 2, 0, - NOZZLE / 2])
-            cube([joint_d, joint_d, joint_h / 2 - NOZZLE], center = true);
+        translate([bone_box_offset / 2, 0, - NOZZLE / 2])
+            cube([bone_box_offset, joint_d, joint_h / 2 - NOZZLE], center = true);
 
         cylinder(joint_h, r = joint_d / 4, center = true);
     }
@@ -66,7 +66,7 @@ module joint_elevator() {
             cube([joint_d, joint_d, joint_h / 2]);
 
         translate([0, - joint_d / 2, 0])
-            cube([joint_d / sqrt(2), joint_d, joint_h / 2]);
+            cube([joint_d / 2 + E, joint_d, joint_h / 2]);
     }
 }
 
@@ -119,9 +119,7 @@ module joint_bone_box() {
     }
 }
 
-module joint() {
-    joint_primary();
-
+module joint_top() {
     translate([0, 0, joint_h / 4])
         joint_extender();
 
@@ -129,35 +127,44 @@ module joint() {
         joint_elevator();
 
     translate([
-        joint_d + bone_box_l / 2 - E,
+        bone_box_offset + bone_box_l / 2 - E,
         0,
         bone_box_h / 2 - E,
     ])
         joint_bone_box();
 
     translate([
-        joint_d * sqrt(2) - E,
+        bone_box_offset - E,
         0,
         - joint_h / 4,
     ])
         joint_strap_attachment();
+}
 
-    rotate([0, 0, 180]) {
-        translate([0, 0, - joint_h / 4])
-            joint_extender();
+module joint_bottom() {
+    translate([0, 0, - joint_h / 4])
+        joint_extender();
 
-        translate([
-            joint_d + bone_box_l / 2 - E,
-            0,
-            bone_box_h / 2 - E,
-        ])
-            joint_bone_box();
+    translate([
+        bone_box_offset + bone_box_l / 2 - E,
+        0,
+        bone_box_h / 2 - E,
+    ])
+        joint_bone_box();
 
-        translate([
-            joint_d - E,
-            0,
-            - joint_h / 4,
-        ])
-            #joint_strap_attachment();
-    }
+    translate([
+        bone_box_offset - E,
+        0,
+        - joint_h / 4,
+    ])
+        joint_strap_attachment();
+}
+
+module joint() {
+    joint_axis();
+
+    joint_top();
+
+    rotate([0, 0, 180])
+        joint_bottom();
 }

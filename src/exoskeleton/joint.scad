@@ -135,6 +135,9 @@ module joint_bottom() {
     translate([0, 0, - joint_h / 4])
         joint_extender();
 
+    translate([joint_d * sqrt(2) / 2, 0, + joint_h / 4 - LAYER * 2 - E])
+        joint_elevator();
+
     translate([
         bone_box_offset + bone_box_l / 2 - E,
         0,

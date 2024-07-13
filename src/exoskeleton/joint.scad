@@ -68,6 +68,9 @@ module joint_elevator() {
         translate([0, - joint_d / 2, 0])
             cube([joint_d / 2 + E, joint_d, joint_h / 2]);
     }
+
+    translate([joint_d / 2, - joint_d / 2, - joint_h / 4])
+        cube([bone_box_r * sqrt(2) + E, joint_d, joint_h / 2]);
 }
 
 module joint_strap_attachment() {
@@ -75,21 +78,28 @@ module joint_strap_attachment() {
     joiner_w = joint_d / 4;
     joiner_h = joint_h / 2;
 
-    end_offset = joint_d / 4;
-
-    translate([end_offset / 2, 0, 0]) {
-        translate([(joiner_l + end_offset) / 2, (joint_d - joiner_w) / 2, 0])
+    translate([strap_end_offset / 2, 0, 0]) {
+        translate([(joiner_l + strap_end_offset) / 2, (joint_d - joiner_w) / 2, 0])
             cube([joiner_l, joiner_w, joiner_h], center = true);
 
-        translate([(joiner_l + end_offset) / 2, - (joint_d - joiner_w) / 2, 0])
+        translate([(joiner_l + strap_end_offset) / 2, - (joint_d - joiner_w) / 2, 0])
             cube([joiner_l, joiner_w, joiner_h], center = true);
 
         translate([E, 0, 0])
-            cube([end_offset, joint_d, joiner_h], center = true);
+            cube([strap_end_offset, joint_d, joiner_h], center = true);
 
-        translate([joiner_l + end_offset - E, 0, 0])
-            cube([end_offset, joint_d, joiner_h], center = true);
+        translate([joiner_l + strap_end_offset - E, 0, 0])
+            cube([strap_end_offset, joint_d, joiner_h], center = true);
     }
+
+    rotate([90, 0, 0])
+    linear_extrude(height = joint_d, center = true)
+        polygon([
+            [strap_end_offset, joint_h * 0.25],
+            [-E, joint_h * 0.25],
+            [-E, joint_h * 0.75 - NOZZLE],
+            [strap_end_offset / 2, joint_h * 0.75 - NOZZLE],
+        ]);
 }
 
 module joint_top() {

@@ -18,9 +18,9 @@ module bone_cap() {
 
     difference() {
         translate([0, 0, - bone_d])
-            cylinder(bone_d * 1.75, r = bone_inner_d / 2, center = true);
+            cylinder(bone_d * 2.5, r = bone_inner_d / 2, center = true);
 
-        translate([0, 0, - bone_d * 1.5])
+        translate([0, 0, - bone_d * 1.75])
         rotate([90, 0, 0])
             cylinder(bone_d, r = screw_d / 2, center = true);
     }

@@ -52,8 +52,8 @@ module joint_axis() {
 
 module joint_extender() {
     difference() {
-        translate([bone_box_offset / 2, 0, - NOZZLE / 2])
-            cube([bone_box_offset, joint_d, joint_h / 2 - NOZZLE], center = true);
+        translate([bone_offset / 2, 0, - NOZZLE / 2])
+            cube([bone_offset, joint_d, joint_h / 2 - NOZZLE], center = true);
 
         cylinder(joint_h, r = joint_d / 4, center = true);
     }
@@ -75,23 +75,21 @@ module joint_strap_attachment() {
     joiner_w = joint_d / 4;
     joiner_h = joint_h / 2;
 
-    translate([strap_offset / 2, 0, 0]) {
-        translate([(joiner_l + strap_offset) / 2, (joint_d - joiner_w) / 2, 0])
+    end_offset = joint_d / 4;
+
+    translate([end_offset / 2, 0, 0]) {
+        translate([(joiner_l + end_offset) / 2, (joint_d - joiner_w) / 2, 0])
             cube([joiner_l, joiner_w, joiner_h], center = true);
 
-        translate([(joiner_l + strap_offset) / 2, - (joint_d - joiner_w) / 2, 0])
+        translate([(joiner_l + end_offset) / 2, - (joint_d - joiner_w) / 2, 0])
             cube([joiner_l, joiner_w, joiner_h], center = true);
 
         translate([E, 0, 0])
-            cube([strap_offset, joint_d, joiner_h], center = true);
+            cube([end_offset, joint_d, joiner_h], center = true);
 
-        translate([joiner_l + strap_offset / 2 + joiner_h / 2 - E, 0, 0])
-            cube([joiner_h, joint_d, joiner_h], center = true);
+        translate([joiner_l + end_offset - E, 0, 0])
+            cube([end_offset, joint_d, joiner_h], center = true);
     }
-}
-
-module joint_bone_box() {
-    // cube([bone_box_l, bone_box_w, bone_box_h], center = true);
 }
 
 module joint_top() {
@@ -102,14 +100,7 @@ module joint_top() {
         joint_elevator();
 
     translate([
-        bone_box_offset + bone_box_l / 2 - E,
-        0,
-        bone_box_h / 2 - E,
-    ])
-        joint_bone_box();
-
-    translate([
-        bone_box_offset - E,
+        bone_offset - E,
         0,
         - joint_h / 4,
     ])
@@ -124,14 +115,7 @@ module joint_bottom() {
         joint_elevator();
 
     translate([
-        bone_box_offset + bone_box_l / 2 - E,
-        0,
-        bone_box_h / 2 - E,
-    ])
-        joint_bone_box();
-
-    translate([
-        bone_box_offset - E,
+        bone_offset - E,
         0,
         - joint_h / 4,
     ])

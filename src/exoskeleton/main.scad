@@ -5,18 +5,18 @@ include <joint.scad>
 module assembly() {
     joint();
 
-    translate([bone_box_offset, bone_d * 0.75, joint_h])
+    translate([bone_offset, bone_d * 0.75, joint_h + bone_raise])
         bone_capped();
 
-    translate([bone_box_offset, - bone_d * 0.75, joint_h])
-        bone_capped();
-
-    rotate([0, 0, 180])
-    translate([bone_box_offset, bone_d * 0.75, joint_h])
+    translate([bone_offset, - bone_d * 0.75, joint_h + bone_raise])
         bone_capped();
 
     rotate([0, 0, 180])
-    translate([bone_box_offset, - bone_d * 0.75, joint_h])
+    translate([bone_offset, bone_d * 0.75, joint_h + bone_raise])
+        bone_capped();
+
+    rotate([0, 0, 180])
+    translate([bone_offset, - bone_d * 0.75, joint_h + bone_raise])
         bone_capped();
 }
 

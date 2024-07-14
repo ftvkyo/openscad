@@ -120,6 +120,12 @@ module leg_base_holed(hole_offset) {
             translate([hole.x - leg_thickness, hole.y])
                 circle(hole_cap_r);
         }
+
+        translate([support.x * 2 / 3 - hole_cap_r * 2, laptop_lift])
+            circle(hole_cap_r);
+
+        translate([support.x * 2 / 3 + hole_cap_r * 2, laptop_lift])
+            circle(hole_cap_r);
     }
 }
 
@@ -230,6 +236,18 @@ module print_joint() {
         joint(90);
 }
 
+module cut_legs() {
+    translate([5, 0])
+    leg_base_holed(hole_spread);
+
+    mirror([1, 0])
+    translate([5, 0])
+        leg_base_holed(- hole_spread);
+}
+
 
 assembly();
 // print_joint();
+// cut_legs();
+
+// TODO: a thing to prevent it going narrower than required

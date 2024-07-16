@@ -220,6 +220,47 @@ module joint_triple() {
 }
 
 
+module lock() {
+    angle = leg_angle * 2 * 0.1;
+    offst = support.x * 2 / 3 + leg_thickness;
+    offst1 = support.x * 2 / 3 + leg_thickness - hole_cap_r * 2;
+    offst2 = support.x * 2 / 3 + leg_thickness + hole_cap_r * 2;
+
+    translate([0, 0, laptop_lift])
+    rotate([0, 0, leg_angle])
+    rotate_extrude(angle = angle, $fn = 360)
+    translate([offst1, 0])
+        square([hole_cap_r * 1.5, leg_thickness], center = true);
+
+    translate([0, 0, laptop_lift])
+    rotate([0, 0, leg_angle])
+    rotate_extrude(angle = angle, $fn = 360)
+    translate([offst2, 0])
+        square([hole_cap_r * 1.5, leg_thickness], center = true);
+
+    translate([0, 0, laptop_lift])
+    rotate([0, 0, - leg_angle - angle])
+    rotate_extrude(angle = angle, $fn = 360)
+    translate([offst1, 0])
+        square([hole_cap_r * 1.5, leg_thickness], center = true);
+
+    translate([0, 0, laptop_lift])
+    rotate([0, 0, - leg_angle - angle])
+    rotate_extrude(angle = angle, $fn = 360)
+    translate([offst2, 0])
+        square([hole_cap_r * 1.5, leg_thickness], center = true);
+
+    translate([0, 0, laptop_lift])
+    linear_extrude(leg_thickness, center = true)
+        polygon([
+            [cos(leg_angle) * offst1, sin(leg_angle) * offst1] * 0.93,
+            [cos(leg_angle) * offst2, sin(leg_angle) * offst2] * 1.07,
+            [cos(leg_angle) * offst2, - sin(leg_angle) * offst2] * 1.07,
+            [cos(leg_angle) * offst1, - sin(leg_angle) * offst1] * 0.93,
+        ]);
+}
+
+
 /* ======= *
  * Outputs *
  * ======= */
@@ -229,6 +270,8 @@ module assembly() {
     leg_pair();
 
     joint_triple();
+
+    lock();
 }
 
 module print_joint() {
@@ -246,8 +289,15 @@ module cut_legs() {
 }
 
 
-assembly();
+module cut_lock() {
+    offset(1)
+    offset(-1)
+    projection()
+        lock();
+}
+
+
+// assembly();
 // print_joint();
 // cut_legs();
-
-// TODO: a thing to prevent it going narrower than required
+cut_lock();

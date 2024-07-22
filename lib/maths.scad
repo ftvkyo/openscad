@@ -11,6 +11,8 @@ function clamp(v_min, t, v_max) = max(v_min, min(t, v_max));
 */
 function lerp(v0, v1, t) = (1 - t) * v0 + t * v1;
 
+function lerp_points(p0, p1, step) = [ for (s = [0 : step : 1]) lerp(p0, p1, s) ];
+
 /**
     Calculates a single point for a quadratic Bézier curve.
     It has 3 control points.
@@ -49,6 +51,25 @@ function bezier_4(p0, p1, p2, p3, step) = [ for (s = [0 : step : 1]) bezier_4_si
     Calculate a normal for a line defined by two points.
 */
 function normal(a, b) = let (t = b - a) [-t.y, t.x] / norm(t);
+
+/* Drawing */
+
+module stroke_line(p0, p1, thickness) {
+    assert(is_list(p0) && len(p0) == 2);
+    assert(is_list(p1) && len(p1) == 2);
+    assert(is_num(thickness), "thickness must be a number");
+
+    n = normal(p0, p1) * thickness / 2;
+
+    points = [
+        p0 + n,
+        p1 + n,
+        p1 - n,
+        p0 - n,
+    ];
+
+    polygon(points);
+}
 
 // TODO: calculate bezier tangents using a derivative and base normals off of that
 

@@ -10,7 +10,7 @@ brooch_r = 25;
 brooch_p = 3;
 
 // Brooch plate thickness in layers
-brooch_plate_tl = 5;
+brooch_plate_tl = 10;
 
 // Logo thickness in layers
 logo_tl = 5;
@@ -147,25 +147,30 @@ module brooch_plate() {
         offset(brooch_p * 8)
             logo();
 
-        translate([12, 9])
-            circle(r = N);
-        translate([14, 9])
-            circle(r = N);
+        translate([0, -18]) {
+            translate([0, -1])
+                circle(r = N * 1.5);
+            translate([0, 1])
+                circle(r = N * 1.5);
+        }
 
-        translate([-12, 9])
-            circle(r = N);
-        translate([-14, 9])
-            circle(r = N);
+        translate([25.25, 7.25])
+        rotate(-10)
+        {
+            translate([-1, 0])
+                circle(r = N * 1.5);
+            translate([1, 0])
+                circle(r = N * 1.5);
+        }
 
-        translate([2, 0])
-            circle(r = N);
-        translate([-2, -2])
-            circle(r = N);
+        translate([-25.25, 7.25])
+        rotate(10) {
+            translate([-1, 0])
+                circle(r = N * 1.5);
+            translate([1, 0])
+                circle(r = N * 1.5);
+        }
 
-        translate([-2, 0])
-            circle(r = N);
-        translate([2, -2])
-            circle(r = N);
     }
 }
 

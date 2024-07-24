@@ -1,106 +1,128 @@
 use <../../lib/maths.scad>
 use <../../lib/debug.scad>
 
+// Width of the nozzle
 NOZZLE = 0.4;
-LAYER = NOZZLE / 2;
 
-module feather_stem(p0, p1, p2, p3) {
-    ft = function(t) clamp(NOZZLE * 2, (1 - t) * NOZZLE * 14, NOZZLE * 12);
+// Length of the feather
+stem = 300;
 
-    stroke_bezier_4(p0, p1, p2, p3, 0.05, ft);
+// Bend angle of the stem at the start
+stem_bend1_a = 15;
+
+// Bend strength of the stem at the start
+stem_bend1_s = 75;
+
+// Bend angle of the stem at the end
+stem_bend2_a = 10;
+
+// Bend strength of the stem at the end
+stem_bend2_s = 75;
+
+// How much of the feather is covered in barbs
+coverage = 0.8;
+
+barb_step = 0.01;
+
+// Text to put on the stem
+flavour_text = "ftvkyo.me";
+
+
+/* [Hidden] */
+
+N = NOZZLE;
+L = NOZZLE / 2;
+
+ft_stem = function(t) clamp(NOZZLE * 2, (1 - t) * NOZZLE * 14, NOZZLE * 12);
+ft_barb = function(_t) NOZZLE * 2;
+
+p0 = [0, 0];
+p1 = p0 + [cos(stem_bend1_a), sin(stem_bend1_a)] * stem_bend1_s;
+
+p3 = [stem, 0];
+p2 = p3 + [- cos(stem_bend2_a), sin(stem_bend2_a)] * stem_bend2_s;
+
+
+/* Modules */
+
+module feather_stem() {
+    stroke_bezier_4(p0, p1, p2, p3, 0.05, ft_stem);
 }
 
-module feather_barbs(p0, p1, p2, p3) {
-    tf = function(_t) NOZZLE * 2;
 
-    function barb_len_inner(t) = (1 - abs(t - 0.5)) * (1 - t ^ 8);
-    function barb_len_outer(t) = (1.2 - abs(t - 0.5)) * (1 - t ^ 10);
+module feather_barbs() {
+    outer1_a = stem_bend1_a + 20;
+    outer1_s = stem_bend1_s + 50;
 
-    connections = bezier_4(p0, p1, p2, p3, 0.01);
-    start = len(connections) / 5;
+    outer2_a = stem_bend2_a + 30;
+    outer2_s = stem_bend2_s - 10;
 
-    for (i = [start : len(connections) - 1]) {
-        c = connections[i];
+    outer_p1 = p0 + [cos(outer1_a), sin(outer1_a)] * outer1_s;
+    outer_p2 = p3 + [- cos(outer2_a), sin(outer2_a)] * outer2_s;
 
-        mods1 = [
-            [0, 0],
-            [5, 10],
-            [6, 15],
-            [10, 20],
-        ];
+    inner1_a = stem_bend1_a - 30;
+    inner1_s = stem_bend1_s + 40;
 
-        mods1_scaled = [ for (mod = mods1) mod * barb_len_outer(i / len(connections)) ];
+    inner2_a = stem_bend2_a - 10;
+    inner2_s = stem_bend2_s - 10;
 
-        a1 = c + mods1_scaled[0];
-        a1c = c + mods1_scaled[1];
-        b1 = c + mods1_scaled[2];
-        b1c = c + mods1_scaled[3];
+    inner_p1 = p0 + [cos(inner1_a), sin(inner1_a)] * inner1_s;
+    inner_p2 = p3 + [- cos(inner2_a), sin(inner2_a)] * inner2_s;
 
-        stroke_bezier_4(a1, a1c, b1, b1c, 0.2, tf);
+    for (s = [1 - coverage : barb_step : 1]) {
+        outer = bezier_4_single(p0, outer_p1, outer_p2, p3, s);
+        center = bezier_4_single(p0, p1, p2, p3, s);
+        inner = bezier_4_single(p0, inner_p1, inner_p2, p3, s);
+
+        stroke_line(center, outer, N * 2);
+        stroke_line(center, inner, N * 2);
     }
-
-    for (i = [start : len(connections) - 1]) {
-        c = connections[i];
-
-        mods2 = [
-            [0, 0],
-            [5, -10],
-            [6, -15],
-            [10, -20],
-        ];
-
-        mods2_scaled = [ for (mod = mods2) mod * barb_len_inner(i / len(connections)) ];
-
-        a2 = c + mods2_scaled[0];
-        a2c = c + mods2_scaled[1];
-        b2 = c + mods2_scaled[2];
-        b2c = c + mods2_scaled[3];
-
-        stroke_bezier_4(a2, a2c, b2, b2c, 0.2, tf);
-    }
 }
 
-module attachment() {
-    $fn = 6;
 
-    translate([12.5, 0])
-        cylinder(10, r = 1, center = true);
-    translate([-12.5, 0])
-        cylinder(10, r = 1, center = true);
+module feather_attachment() {
+    $fn = 12;
+
+    p0 = [0, 0];
+    p1 = p0 + [cos(stem_bend1_a), sin(stem_bend1_a)] * stem_bend1_s;
+
+    p3 = [stem, 0];
+    p2 = p3 + [- cos(stem_bend2_a), sin(stem_bend2_a)] * stem_bend2_s;
+
+    c1 = bezier_4_single(p0, p1, p2, p3, 0.02);
+    c2 = bezier_4_single(p0, p1, p2, p3, 0.12);
+
+    translate(c1)
+        circle(r = 1);
+    translate(c2)
+        circle(r = 1);
 }
 
-module website() {
+
+module feather_flavour() {
     url = "ftvkyo.me";
     font = "JetBrains Mono:style=Bold";
 
     text(url, font = font, size = 3);
 }
 
+
 module feather() {
-    p0 = [0, 0];
-    p1 = [75, 15];
-    p2 = [125, 10];
-    p3 = [200, 0];
-
+    linear_extrude(L * 5)
     difference() {
-        linear_extrude(LAYER * 5)
-            feather_stem(p0, p1, p2, p3);
-
-        #translate([15, 2.65])
-            rotate(9.75)
-            attachment();
+        feather_stem();
+        feather_attachment();
     }
 
     color("green")
-        linear_extrude(LAYER * 2)
-        feather_barbs(p0, p1, p2, p3);
+        linear_extrude(L * 2)
+        feather_barbs();
 
     color("black")
-        translate([4.5, -0.5])
-        rotate(10.5)
-        linear_extrude(LAYER * 6)
-        website();
+        translate([6, 0])
+        rotate(11.5)
+        linear_extrude(L * 6)
+        feather_flavour();
 }
-
 
 feather();

@@ -19,10 +19,17 @@ stem_bend2_a = 10;
 // Bend strength of the stem at the end
 stem_bend2_s = 75;
 
+// How many layers for the stem
+stem_layers = 10;
+
 // How much of the feather is covered in barbs
 coverage = 0.8;
 
-barb_step = 0.01;
+// Bezier curve step for the barbs
+barb_step = 0.008;
+
+// How many layers for the barbs
+barb_layers = 5;
 
 // Text to put on the stem
 flavour_text = "ftvkyo.me";
@@ -30,6 +37,7 @@ flavour_text = "ftvkyo.me";
 
 /* [Hidden] */
 
+E = 0.01;
 N = NOZZLE;
 L = NOZZLE / 2;
 
@@ -50,32 +58,53 @@ module feather_stem() {
 }
 
 
-module feather_barbs() {
-    outer1_a = stem_bend1_a + 20;
-    outer1_s = stem_bend1_s + 50;
+module feather_barbs_side(a1, s1, a2, s2) {
+    // Control points for barb p3 (b3)
 
-    outer2_a = stem_bend2_a + 30;
-    outer2_s = stem_bend2_s - 10;
+    b3_start_a = stem_bend1_a + a1;
+    b3_start_s = stem_bend1_s + s1;
 
-    outer_p1 = p0 + [cos(outer1_a), sin(outer1_a)] * outer1_s;
-    outer_p2 = p3 + [- cos(outer2_a), sin(outer2_a)] * outer2_s;
+    b3_end_a = stem_bend2_a + a2;
+    b3_end_s = stem_bend2_s + s2;
 
-    inner1_a = stem_bend1_a - 30;
-    inner1_s = stem_bend1_s + 40;
+    b3_p1 = p0 + [cos(b3_start_a), sin(b3_start_a)] * b3_start_s;
+    b3_p2 = p3 + [- cos(b3_end_a), sin(b3_end_a)] * b3_end_s;
 
-    inner2_a = stem_bend2_a - 10;
-    inner2_s = stem_bend2_s - 10;
+    // Control points for barb p2 (b2)
 
-    inner_p1 = p0 + [cos(inner1_a), sin(inner1_a)] * inner1_s;
-    inner_p2 = p3 + [- cos(inner2_a), sin(inner2_a)] * inner2_s;
+    b2_start_a = stem_bend1_a + a1 * 0.75;
+    b2_start_s = stem_bend1_s + s1 * 0.6;
 
-    for (s = [1 - coverage : barb_step : 1]) {
-        outer = bezier_4_single(p0, outer_p1, outer_p2, p3, s);
-        center = bezier_4_single(p0, p1, p2, p3, s);
-        inner = bezier_4_single(p0, inner_p1, inner_p2, p3, s);
+    b2_end_a = stem_bend2_a + a2 * 0.75;
+    b2_end_s = stem_bend2_s + s2 * 0.8;
 
-        stroke_line(center, outer, N * 2);
-        stroke_line(center, inner, N * 2);
+    b2_p1 = p0 + [cos(b2_start_a), sin(b2_start_a)] * b2_start_s;
+    b2_p2 = p3 + [- cos(b2_end_a), sin(b2_end_a)] * b2_end_s;
+
+    // Control points for barb p1 (b1)
+
+    b1_start_a = stem_bend1_a * 1.2;
+    b1_start_s = stem_bend1_s + s1 * 0.5;
+
+    b1_end_a = stem_bend2_a * 1.2;
+    b1_end_s = stem_bend2_s + s2 * 0.5;
+
+    b1_p1 = p0 + [cos(b1_start_a), sin(b1_start_a)] * b1_start_s;
+    b1_p2 = p3 + [- cos(b1_end_a), sin(b1_end_a)] * b1_end_s;
+
+    // Render
+
+    for (s = [1 - coverage : barb_step : 0.999]) {
+        b0 = bezier_4_single(p0, p1, p2, p3, s);
+        b1 = bezier_4_single(p0, b1_p1, b1_p2, p3, s);
+        b2 = bezier_4_single(p0, b2_p1, b2_p2, p3, s);
+        b3 = bezier_4_single(p0, b3_p1, b3_p2, p3, s);
+
+        l = norm(b3 - b0);
+
+        if (l > N * 2) {
+            stroke_bezier_4(b0, b1, b2, b3, max(0.1, N / l), ft_barb);
+        }
     }
 }
 
@@ -108,20 +137,23 @@ module feather_flavour() {
 
 
 module feather() {
-    linear_extrude(L * 5)
+    linear_extrude(L * stem_layers)
     difference() {
         feather_stem();
         feather_attachment();
     }
 
     color("green")
-        linear_extrude(L * 2)
-        feather_barbs();
+    translate([0, 0, E])
+    linear_extrude(L * barb_layers) {
+        feather_barbs_side(20, 50, 30, -10);
+        feather_barbs_side(-30, 40, -10, -10);
+    }
 
     color("black")
-        translate([6, 0])
-        rotate(11.5)
-        linear_extrude(L * 6)
+    translate([6, 0, E])
+    rotate(11.5)
+    linear_extrude(L * (stem_layers + 1))
         feather_flavour();
 }
 

@@ -20,7 +20,7 @@ stem_bend2_a = 10;
 stem_bend2_s = 75;
 
 // How many layers for the stem
-stem_layers = 10;
+stem_layers = 6;
 
 // How much of the feather is covered in barbs
 coverage = 0.8;
@@ -29,7 +29,7 @@ coverage = 0.8;
 barb_step = 0.008;
 
 // How many layers for the barbs
-barb_layers = 5;
+barb_layers = 3;
 
 // Text to put on the stem
 flavour_text = "ftvkyo.me";
@@ -41,7 +41,7 @@ E = 0.01;
 N = NOZZLE;
 L = NOZZLE / 2;
 
-ft_stem = function(t) clamp(NOZZLE * 2, (1 - t) * NOZZLE * 14, NOZZLE * 12);
+ft_stem = function(t) clamp(NOZZLE * 2, (1 - t) * NOZZLE * 16, NOZZLE * 14);
 ft_barb = function(_t) NOZZLE * 2;
 
 p0 = [0, 0];
@@ -119,7 +119,7 @@ module feather_attachment() {
     p2 = p3 + [- cos(stem_bend2_a), sin(stem_bend2_a)] * stem_bend2_s;
 
     c1 = bezier_4_single(p0, p1, p2, p3, 0.02);
-    c2 = bezier_4_single(p0, p1, p2, p3, 0.12);
+    c2 = bezier_4_single(p0, p1, p2, p3, 0.16);
 
     translate(c1)
         circle(r = 1);
@@ -132,13 +132,15 @@ module feather_flavour() {
     url = "ftvkyo.me";
     font = "JetBrains Mono:style=Bold";
 
-    text(url, font = font, size = 3);
+    text(url, font = font, size = 4);
 }
 
 
 module feather() {
     linear_extrude(L * stem_layers)
     difference() {
+        offset(N / 2)
+        offset(- N / 2)
         feather_stem();
         feather_attachment();
     }
@@ -151,8 +153,8 @@ module feather() {
     }
 
     color("black")
-    translate([6, 0, E])
-    rotate(11.5)
+    translate([8, 0.2, E])
+    rotate(11)
     linear_extrude(L * (stem_layers + 1))
         feather_flavour();
 }

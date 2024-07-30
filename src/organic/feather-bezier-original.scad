@@ -7,7 +7,7 @@ LAYER = NOZZLE / 2;
 module feather_stem(p0, p1, p2, p3) {
     ft = function(t) clamp(NOZZLE * 2, (1 - t) * NOZZLE * 14, NOZZLE * 12);
 
-    stroke_bezier_4(p0, p1, p2, p3, 0.05, ft);
+    stroke_bezier3(p0, p1, p2, p3, 20, ft);
 }
 
 module feather_barbs(p0, p1, p2, p3) {
@@ -16,7 +16,7 @@ module feather_barbs(p0, p1, p2, p3) {
     function barb_len_inner(t) = (1 - abs(t - 0.5)) * (1 - t ^ 8);
     function barb_len_outer(t) = (1.2 - abs(t - 0.5)) * (1 - t ^ 10);
 
-    connections = bezier_4(p0, p1, p2, p3, 0.01);
+    connections = bezier3([p0, p1, p2, p3], 100);
     start = len(connections) / 5;
 
     for (i = [start : len(connections) - 1]) {
@@ -36,7 +36,7 @@ module feather_barbs(p0, p1, p2, p3) {
         b1 = c + mods1_scaled[2];
         b1c = c + mods1_scaled[3];
 
-        stroke_bezier_4(a1, a1c, b1, b1c, 0.2, tf);
+        stroke_bezier3(a1, a1c, b1, b1c, 5, tf);
     }
 
     for (i = [start : len(connections) - 1]) {
@@ -56,7 +56,7 @@ module feather_barbs(p0, p1, p2, p3) {
         b2 = c + mods2_scaled[2];
         b2c = c + mods2_scaled[3];
 
-        stroke_bezier_4(a2, a2c, b2, b2c, 0.2, tf);
+        stroke_bezier3(a2, a2c, b2, b2c, 5, tf);
     }
 }
 

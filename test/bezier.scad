@@ -1,11 +1,11 @@
 use <../lib/maths.scad>
 use <../lib/debug.scad>
 
-STEP = 0.05;
+STEPS = 20;
 
 
 module curve3(p0, p1, p2) {
-    for (debug_point = bezier_3(p0, p1, p2, STEP)) {
+    for (debug_point = bezier2([p0, p1, p2], STEPS)) {
         translate(debug_point)
             circle(0.25);
     }
@@ -16,7 +16,7 @@ module curve3(p0, p1, p2) {
 }
 
 module curve4(p0, p1, p2, p3) {
-    for (debug_point = bezier_4(p0, p1, p2, p3, STEP)) {
+    for (debug_point = bezier3([p0, p1, p2, p3], STEPS)) {
         translate(debug_point)
             circle(0.25);
     }
@@ -30,7 +30,7 @@ module curve4(p0, p1, p2, p3) {
 module stroke4(p0, p1, p2, p3, ft) {
     f_thickness = ft ? ft : function(_t) 1;
 
-    stroke_bezier_4(p0, p1, p2, p3, STEP, f_thickness);
+    stroke_bezier3(p0, p1, p2, p3, STEPS, f_thickness);
 
     debug_point(p0, "red");
     debug_point(p1, "green");

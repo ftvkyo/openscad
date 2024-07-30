@@ -25,8 +25,8 @@ stem_layers = 6;
 // How much of the feather is covered in barbs
 coverage = 0.8;
 
-// Bezier curve step for the barbs
-barb_step = 0.008;
+// Bezier curve steps for the barbs
+barb_steps = 125;
 
 // How many layers for the barbs
 barb_layers = 3;
@@ -54,7 +54,7 @@ p2 = p3 + [- cos(stem_bend2_a), sin(stem_bend2_a)] * stem_bend2_s;
 /* Modules */
 
 module feather_stem() {
-    stroke_bezier_4(p0, p1, p2, p3, 0.05, ft_stem);
+    stroke_bezier3(p0, p1, p2, p3, 20, ft_stem);
 }
 
 
@@ -94,16 +94,16 @@ module feather_barbs_side(a1, s1, a2, s2) {
 
     // Render
 
-    for (s = [1 - coverage : barb_step : 0.999]) {
-        b0 = bezier_4_single(p0, p1, p2, p3, s);
-        b1 = bezier_4_single(p0, b1_p1, b1_p2, p3, s);
-        b2 = bezier_4_single(p0, b2_p1, b2_p2, p3, s);
-        b3 = bezier_4_single(p0, b3_p1, b3_p2, p3, s);
+    for (t = [1 - coverage : 1 / barb_steps : 0.999]) {
+        b0 = _bezier3([p0, p1, p2, p3], t);
+        b1 = _bezier3([p0, b1_p1, b1_p2, p3], t);
+        b2 = _bezier3([p0, b2_p1, b2_p2, p3], t);
+        b3 = _bezier3([p0, b3_p1, b3_p2, p3], t);
 
         l = norm(b3 - b0);
 
         if (l > N * 2) {
-            stroke_bezier_4(b0, b1, b2, b3, max(0.1, N / l), ft_barb);
+            stroke_bezier3(b0, b1, b2, b3, min(10, l / N), ft_barb);
         }
     }
 }
@@ -118,8 +118,8 @@ module feather_attachment() {
     p3 = [stem, 0];
     p2 = p3 + [- cos(stem_bend2_a), sin(stem_bend2_a)] * stem_bend2_s;
 
-    c1 = bezier_4_single(p0, p1, p2, p3, 0.02);
-    c2 = bezier_4_single(p0, p1, p2, p3, 0.16);
+    c1 = _bezier3([p0, p1, p2, p3], 0.02);
+    c2 = _bezier3([p0, p1, p2, p3], 0.16);
 
     translate(c1)
         circle(r = 1);

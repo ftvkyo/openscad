@@ -54,10 +54,15 @@ _b3_tangent = function (pts, t) let (ot = 1 - t) 3 * ot * ot * (pts[1] - pts[0])
  */
 function _bezier3_tangent(pts, t) = _b3_tangent(pts, t);
 
+
+_b3_acceleration = function (pts, t) 6 * (1 - t) * (pts[2] - 2 * pts[1] + pts[0]) + 6 * t * (pts[3] - 2 * pts[2] + pts[1]);
+function _bezier3_acceleration(pts, t) = _b3_acceleration(pts, t);
+
 _b3_normal = function (pts, t) let (tangent = _b3_tangent(pts, t)) [- tangent.y, tangent.x] / norm(tangent);
 
 /**
     Calculates a single normal to a 2-dimensional cubic Bézier curve.
+    Has unit length.
 
     Arguments like for `_bezier3`.
  */
@@ -92,7 +97,34 @@ function bezier3(pts, steps) = _step_through(_b3, pts, steps);
 
 function bezier3_tangents(pts, steps) = _step_through(_b3_tangent, pts, steps);
 
+function bezier3_accelerations(pts, steps) = _step_through(_b3_acceleration, pts, steps);
+
 function bezier3_normals(pts, steps) = _step_through(_b3_normal, pts, steps);
+
+
+/* ================== *
+ * Extended functions *
+ * ================== */
+
+function _list_sum(l, i) = l[i] + ((i <= 0) ? 0 : _list_sum(l, i - 1));
+function list_sum(l) = _list_sum(l, len(l) - 1);
+
+/**
+    Calculates points for a cubic Bezier curve.
+    Repositions them in an attempt to provide more equal spacing.
+    It has 4 control points.
+
+    Parameter `steps` determines how many steps the curve is subdivided into.
+ */
+function bezier3_spaced(pts, steps) = let (
+        tangents = bezier3_tangents(pts, steps),
+        tnorms = [ for (t = tangents) norm(t) ],
+        avgtnorm = list_sum(tnorms) / len(tnorms),
+        step_old = 1 / steps,
+        steps_old = [ for (t = [0 : 1 / steps : 1]) t ],
+        adjustments = [ for (i = [0 : steps - 1]) step_old * avgtnorm / tnorms[i]],
+        steps_new = [ for (i = [0 : steps - 1]) clamp(0, steps_old[i] + adjustments[i], 1) ]
+    ) [for (s = steps_new) _bezier3(pts, s)];
 
 
 /* ======= *

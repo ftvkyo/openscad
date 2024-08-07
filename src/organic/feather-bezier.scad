@@ -73,7 +73,16 @@ module feather_stem() {
 ft_barb = function(_t) NOZZLE * 2;
 
 module feather_barbs(c0, c1, c2, c3, ft) {
-    echo(c0, c1, c2, c3);
+    // b0s = bezier3(c0, barb_steps);
+    // b1s = bezier3(c1, barb_steps);
+    // b2s = bezier3(c2, barb_steps);
+    // b3s = bezier3(c3, barb_steps);
+    //
+    // for (i = [barb_steps * (1 - coverage) : barb_steps - 1]) {
+    //     b0 = b0s[i];
+    //     b1 = b1s[i];
+    //     b2 = b2s[i];
+    //     b3 = b3s[i];
 
     for (t = [1 - coverage : 1 / barb_steps : 0.999]) {
         b0 = _bezier3(c0, t);

@@ -1,4 +1,8 @@
+INF = 10 ^ 5;
+
 module capsule(points, radius) {
+    $fn = 48;
+
     assert(is_list(points) && len(points) == 2, "'points' must be a list with 2 elements");
 
     let (a = points[0], b = points[1]) {
@@ -16,5 +20,18 @@ module capsule(points, radius) {
             rotate(angle, rot_axis)
                 cylinder(l, r = radius);
         }
+    }
+}
+
+module ring(thickness, radius) {
+    rotate_extrude($fn = 180)
+    translate([radius, 0])
+        circle(thickness, $fn = 48);
+}
+
+module flatten(thickness) {
+    intersection() {
+        children();
+        cube([INF, INF, thickness], center = true);
     }
 }

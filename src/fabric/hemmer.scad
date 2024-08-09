@@ -10,7 +10,7 @@ round = 0.75;
 $fn = 48;
 
 
-module capsule(x, y, r) {
+module capsule_2d(x, y, r) {
     r = is_undef(r) ? t * 0.49 : r;
 
     offset(r)
@@ -23,22 +23,22 @@ module profile() {
     offset(- round)
     offset(round) {
         // Bottom
-        capsule(w, t);
+        capsule_2d(w, t);
 
         // Left
-        capsule(t, t * 3 + gap * 2);
+        capsule_2d(t, t * 3 + gap * 2);
 
         // Top
         translate([0, t * 2 + gap * 2])
-            capsule(t * 2 + w_fold + gap, t);
+            capsule_2d(t * 2 + w_fold + gap, t);
 
         // Right
         translate([t + gap + w_fold, t + gap])
-            capsule(t, t * 2 + gap);
+            capsule_2d(t, t * 2 + gap);
 
         // Center
         translate([t + gap, t + gap])
-            capsule(t + w_fold, t);
+            capsule_2d(t + w_fold, t);
     }
 }
 

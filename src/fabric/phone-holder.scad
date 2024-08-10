@@ -25,14 +25,19 @@ module bracket(hole, thickness, height) {
 }
 
 
-bracket(hole_phone, thickness, height);
+difference() {
+    bracket(hole_phone, thickness, height);
+
+    translate([1 / 4, 0, height / 4])
+        cube([hole_phone.x + 0.5, hole_phone.y / 2, height / 2 + 1], center = true);
+}
 
 translate([
     hole_phone.x / 2 - hole_holster.x / 2,
     (hole_phone.y + hole_holster.y) / 2 + thickness,
     0,
 ])
-bracket(hole_holster, thickness, height * 1.5);
+bracket(hole_holster, thickness, height);
 
 translate([
     - hole_phone.x / 3 + hole_strap.x / 3,

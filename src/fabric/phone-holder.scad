@@ -1,5 +1,7 @@
+E = 0.001;
+INF = 10 ^ 5;
 
-thickness = 2;
+thickness = 1.6;
 height = 20;
 
 hole_phone = [77.5, 9];
@@ -13,7 +15,7 @@ module bracket(hole, thickness, height) {
     $fn = 48;
     rounding = thickness * 0.49;
 
-    linear_extrude(height, convexity = 4)
+    linear_extrude(height, convexity = 10)
     offset(rounding)
     offset(- rounding)
     difference() {
@@ -23,6 +25,63 @@ module bracket(hole, thickness, height) {
         ], center = true);
 
         square(hole, center = true);
+    }
+}
+
+
+module brrrracket(hole, thickness, height) {
+    $fn = 48;
+    rounding = thickness * 0.49;
+
+    r_in = hole.y / 2 + thickness;
+    r_out = hole.y / 2;
+
+    linear_extrude(height, convexity = 10)
+    difference() {
+        union() {
+            square([
+                hole.x - r_out * 2,
+                hole.y + thickness * 2,
+            ], center = true);
+
+            translate([hole.x / 2 - r_out, 0])
+                circle(r = r_in);
+
+            translate([- hole.x / 2 + r_out, 0])
+                circle(r = r_in);
+        }
+
+        union() {
+            square([
+                hole.x - r_out * 2,
+                hole.y,
+            ], center = true);
+
+            translate([hole.x / 2 - r_out, 0])
+                circle(r = r_out);
+
+            translate([- hole.x / 2 + r_out, 0])
+                circle(r = r_out);
+        }
+    }
+}
+
+
+module brracket(hole, thickness, height) {
+    translate([0, - hole.y / 2, 0])
+    intersection() {
+        brrrracket([hole.x, hole.y * 2], thickness, height);
+
+        translate([0, INF / 2, height / 2])
+            cube([INF, INF, height + 1], center = true);
+    }
+
+    translate([0, E, 0])
+    intersection() {
+        bracket(hole, thickness, height);
+
+        translate([0, - (hole.y + thickness) / 2, height / 2])
+            cube([INF, thickness, height + 1], center = true);
     }
 }
 
@@ -39,7 +98,8 @@ translate([
     - (hole_phone.y + hole_holster.y) / 2 - thickness,
     0,
 ])
-bracket(hole_holster, thickness, height * 2);
+rotate([0, 0, 180])
+brracket(hole_holster, thickness, height * 2);
 
 translate([
     (- hole_phone.x + hole_strap.x) / 4,

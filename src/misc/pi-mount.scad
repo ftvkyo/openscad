@@ -7,6 +7,7 @@ hole_r_2 = 2;
 
 // Dimensions
 
+T = 0.5; // Tolerance offset
 N = 0.4; // Nozzle diameter
 L = N / 2; // Layer height
 E = 0.01;
@@ -60,8 +61,8 @@ module printer() {
 module frame_mount() {
     $fn = 48;
 
-    snap_width = dim_printer_frame.x + mount_thickness * 2;
-    snap_depth = dim_printer_frame.y + mount_thickness * 2;
+    snap_width = dim_printer_frame.x + mount_thickness * 2 + T;
+    snap_depth = dim_printer_frame.y + mount_thickness * 2 + T;
     snap_grip = 1;
 
     module snap_section() {
@@ -69,9 +70,9 @@ module frame_mount() {
         offset(- mount_thickness * 0.49) {
             difference() {
                 square([snap_width, snap_depth], center = true);
-                square([dim_printer_frame.x, dim_printer_frame.y], center = true);
+                square([dim_printer_frame.x, dim_printer_frame.y] + [T, T] / 2, center = true);
                 translate([0, mount_thickness])
-                    square([dim_printer_frame.x - snap_grip * 2, dim_printer_frame.y + mount_thickness], center = true);
+                    square([dim_printer_frame.x + T / 2 - snap_grip * 2, dim_printer_frame.y + T / 2 + mount_thickness], center = true);
             }
 
             triangle_angle = 20;

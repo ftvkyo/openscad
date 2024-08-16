@@ -1,6 +1,6 @@
 // Parameters
 
-case_tilt = 30;
+case_tilt = 15;
 
 hole_r_1 = 4;
 hole_r_2 = 2;
@@ -24,6 +24,10 @@ offset_printer_frame = 3;
 offset_printer_bracket = 40;
 
 mount_thickness = N * 4;
+
+poke_y_offset = 9;
+poke_z_offset = 7.5;
+poke_z_distance = 15;
 
 // Modules
 
@@ -122,25 +126,92 @@ module frame_mount() {
     difference() {
         snap();
 
-        oy = 9;
-        oz = 7.5;
-        dz = 15;
-
-        #translate([mount_thickness, - oy, oz])
+        #translate([mount_thickness, - poke_y_offset, poke_z_offset])
             slot();
 
-        #translate([mount_thickness, - oy, oz + dz])
+        #translate([mount_thickness, - poke_y_offset, poke_z_offset + poke_z_distance])
             slot();
     }
+}
+
+module pi_holder() {
+    $fn = 48;
+
+    module poke() {
+        translate([0, 0, offset_printer_frame + T])
+            cylinder(mount_thickness, r = hole_r_1 - T / 2);
+
+        translate([0, 0, offset_printer_frame - mount_thickness])
+            cylinder(mount_thickness + T, r = hole_r_2);
+
+        cylinder(offset_printer_frame - mount_thickness, r = hole_r_1);
+    }
+
+    module pokers() {
+        translate([- 0.5, - poke_y_offset, poke_z_offset]) {
+            rotate([0, 90, 0])
+                poke();
+
+            translate([0, 0, poke_z_distance])
+            rotate([0, 90, 0])
+                poke();
+        }
+    }
+
+    module base() {
+        difference() {
+            cube([
+                dim_case.x + mount_thickness * 2,
+                dim_case.y + mount_thickness * 2,
+                mount_thickness * 4,
+            ], center = true);
+
+            translate([0, 0, mount_thickness / 2 + E])
+            cube([
+                dim_case.x,
+                dim_case.y,
+                mount_thickness * 3,
+            ], center = true);
+        }
+    }
+
+    module connector() {
+        difference() {
+            union() {
+                translate([- mount_thickness, -9, 12])
+                    cube([mount_thickness * 2, 14, 32], center = true);
+
+                translate([- mount_thickness, -9, 6])
+                rotate([0, -90, 0])
+                linear_extrude(mount_thickness)
+                scale([1, 1.5])
+                    circle(20,  $fn = 3);
+            }
+
+            translate([0, 1.8, - dim_case.z / 2])
+            rotate([case_tilt, 0, 0])
+                cube(dim_case, center = true);
+        }
+    }
+
+    pokers();
+
+    connector();
+
+    translate([- (dim_case.x + mount_thickness) / 2 - mount_thickness * 1.5, -12, 0])
+    rotate([case_tilt, 0, 0])
+        base();
 }
 
 module assembly() {
     %printer();
 
-    translate([- dim_case.x / 2, 0, 0])
-        %case();
+    // translate([- dim_case.x / 2, 0, 0])
+    //     %case();
 
     frame_mount();
+
+    pi_holder();
 }
 
 assembly();

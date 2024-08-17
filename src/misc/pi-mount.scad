@@ -1,9 +1,10 @@
 // Parameters
 
-case_tilt = 15;
+case_rot = [90, 0, 90];
 
-hole_r_1 = 4;
-hole_r_2 = 2;
+pi_hook_r = 4.5 / 2;
+pi_hook_depth = 3.5;
+pi_hook_distance = 30;
 
 // Dimensions
 
@@ -25,15 +26,11 @@ offset_printer_bracket = 40;
 
 mount_thickness = N * 4;
 
-poke_y_offset = 9;
-poke_z_offset = 7.5;
-poke_z_distance = 15;
-
 // Modules
 
 module case() {
     color("#aaaaff55")
-    rotate([case_tilt, 0, 0])
+    rotate(case_rot)
         cube(dim_case, center = true);
 }
 
@@ -107,111 +104,40 @@ module frame_mount() {
             snap_section();
     }
 
-    module slot_section() {
-        circle(hole_r_2);
+    module hook() {
+        translate([offset_printer_frame - T, 0, 0])
+        rotate([0, 90, 0])
+        rotate([180, 0, 30])
+            cylinder(offset_printer_frame - T, r = pi_hook_r * 2, $fn = 6);
 
-        translate([0, hole_r_2 * 3])
-            circle(hole_r_1);
+        translate([offset_printer_frame - mount_thickness, 0, 0])
+        rotate([0, 90, 0])
+        rotate([180, 0, 30])
+            cylinder(mount_thickness + pi_hook_depth + offset_printer_frame, r = pi_hook_r, $fn = 6);
 
-        translate([0, hole_r_2 * 1.5])
-            square([hole_r_2 * 2, hole_r_2 * 3], center = true);
+        translate([- pi_hook_depth - mount_thickness, 0, 2/3])
+        rotate([0, 90, 0])
+        rotate([180, 0, 30])
+            cylinder(mount_thickness, r = pi_hook_r, $fn = 6);
     }
 
-    module slot() {
-        rotate([90, 0, 90])
-        linear_extrude(mount_thickness * 2, center = true, convexity = 4)
-            slot_section();
+    snap();
+
+    translate([0, -9, 4.5]) {
+        hook();
+
+        translate([0, 0, pi_hook_distance])
+            hook();
     }
-
-    difference() {
-        snap();
-
-        #translate([mount_thickness, - poke_y_offset, poke_z_offset])
-            slot();
-
-        #translate([mount_thickness, - poke_y_offset, poke_z_offset + poke_z_distance])
-            slot();
-    }
-}
-
-module pi_holder() {
-    $fn = 48;
-
-    module poke() {
-        translate([0, 0, offset_printer_frame + T])
-            cylinder(mount_thickness, r = hole_r_1 - T / 2);
-
-        translate([0, 0, offset_printer_frame - mount_thickness])
-            cylinder(mount_thickness + T, r = hole_r_2);
-
-        cylinder(offset_printer_frame - mount_thickness, r = hole_r_1);
-    }
-
-    module pokers() {
-        translate([- 0.5, - poke_y_offset, poke_z_offset]) {
-            rotate([0, 90, 0])
-                poke();
-
-            translate([0, 0, poke_z_distance])
-            rotate([0, 90, 0])
-                poke();
-        }
-    }
-
-    module base() {
-        difference() {
-            cube([
-                dim_case.x + mount_thickness * 2,
-                dim_case.y + mount_thickness * 2,
-                mount_thickness * 4,
-            ], center = true);
-
-            translate([0, 0, mount_thickness / 2 + E])
-            cube([
-                dim_case.x,
-                dim_case.y,
-                mount_thickness * 3,
-            ], center = true);
-        }
-    }
-
-    module connector() {
-        difference() {
-            union() {
-                translate([- mount_thickness, -9, 12])
-                    cube([mount_thickness * 2, 14, 32], center = true);
-
-                translate([- mount_thickness, -9, 6])
-                rotate([0, -90, 0])
-                linear_extrude(mount_thickness)
-                scale([1, 1.5])
-                    circle(20,  $fn = 3);
-            }
-
-            translate([0, 1.8, - dim_case.z / 2])
-            rotate([case_tilt, 0, 0])
-                cube(dim_case, center = true);
-        }
-    }
-
-    pokers();
-
-    connector();
-
-    translate([- (dim_case.x + mount_thickness) / 2 - mount_thickness * 1.5, -12, 0])
-    rotate([case_tilt, 0, 0])
-        base();
 }
 
 module assembly() {
     %printer();
 
-    // translate([- dim_case.x / 2, 0, 0])
-    //     %case();
+    translate([- dim_case.x / 2, 0, 0])
+        %case();
 
-    frame_mount();
-
-    pi_holder();
+    !frame_mount();
 }
 
 assembly();

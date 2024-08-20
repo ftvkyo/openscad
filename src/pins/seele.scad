@@ -2,7 +2,7 @@ N = 0.4;
 L = N / 2;
 T = L * 15;
 
-enlarge = 1.5;
+enlarge = 1;
 w = 35 * enlarge;
 
 strap_w = 26;
@@ -29,7 +29,7 @@ module outline() {
     difference() {
         children();
 
-        offset(- N)
+        offset(- N * 1.5)
             children();
     }
 }

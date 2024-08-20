@@ -112,10 +112,18 @@ module frame_mount() {
 
         translate([offset_printer_frame - mount_thickness, 0, 0])
         rotate([0, 90, 0])
-        rotate([180, 0, 30])
-            cylinder(mount_thickness + pi_hook_depth + offset_printer_frame, r = pi_hook_r, $fn = 6);
+        rotate([180, 0, 90])
+        intersection() {
+            height = pi_hook_depth + T + offset_printer_frame;
 
-        translate([- pi_hook_depth - mount_thickness, 0, 2/3])
+            cylinder(height, r = pi_hook_r, $fn = 6);
+
+            rotate([10, 0, 0])
+            translate([0, 0, height / 2])
+                cube([pi_hook_r * 2, pi_hook_r * 2, height], center = true);
+        }
+
+        translate([- (pi_hook_depth + T), 0, 1])
         rotate([0, 90, 0])
         rotate([180, 0, 30])
             cylinder(mount_thickness, r = pi_hook_r, $fn = 6);
@@ -137,7 +145,7 @@ module assembly() {
     translate([- dim_case.x / 2, 0, 0])
         %case();
 
-    !frame_mount();
+    frame_mount();
 }
 
 assembly();

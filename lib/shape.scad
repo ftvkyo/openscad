@@ -1,6 +1,6 @@
 INF = 10 ^ 5;
 
-module capsule(points, radius) {
+module capsule(points, radius, caps = true) {
     $fn = 48;
 
     assert(is_list(points) && len(points) == 2, "'points' must be a list with 2 elements");
@@ -10,11 +10,12 @@ module capsule(points, radius) {
         assert(is_list(b) && len(b) == 3 && is_num(b.x) && is_num(b.y) && is_num(b.z), "'points[1]' must be a point in 3D space");
 
         let (dir = b - a, l = norm(dir), ndir = dir / l, rot_axis = [- ndir.y, ndir.x], angle = acos(ndir.z)) {
-            translate(a)
-                sphere(radius);
-
-            translate(b)
-                sphere(radius);
+            if (caps) {
+                translate(a)
+                    sphere(radius);
+                translate(b)
+                    sphere(radius);
+            }
 
             translate(a)
             rotate(angle, rot_axis)
@@ -27,6 +28,20 @@ module ring(thickness, radius) {
     rotate_extrude($fn = 180)
     translate([radius, 0])
         circle(thickness, $fn = 48);
+}
+
+module pancake(thickness, radius) {
+    rotate_extrude($fn = 180) {
+        translate([radius, 0])
+            circle(thickness, $fn = 48);
+
+        polygon([
+            [0, thickness],
+            [radius, thickness],
+            [radius, - thickness],
+            [0, - thickness],
+        ]);
+    }
 }
 
 module flatten(thickness) {

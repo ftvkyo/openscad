@@ -30,6 +30,22 @@ module ring(thickness, radius) {
         circle(thickness, $fn = 48);
 }
 
+module multiring(sides, side, thickness) {
+    // Correct (roughly) for the sides intersecting at the corners
+    side_y = side + thickness;
+
+    side_a = 360 / sides;
+    side_x = side_y / tan(side_a / 2) / 2;
+
+    for (a = [0 : side_a : 359]) {
+        rotate([0, 0, a])
+        capsule([
+            [side_x, side_y / 2, 0],
+            [side_x, - side_y / 2, 0],
+        ], thickness / 2);
+    }
+}
+
 module pancake(thickness, radius) {
     rotate_extrude($fn = 180) {
         translate([radius, 0])

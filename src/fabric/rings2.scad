@@ -19,5 +19,5 @@ module diamond(side, thickness) {
 }
 
 
-// triangle(55, 6);
-diamond(55, 6);
+// triangle(40, 6);
+diamond(40, 6);

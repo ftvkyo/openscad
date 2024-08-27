@@ -2,7 +2,7 @@ E = 0.001;
 INF = 10 ^ 5;
 
 thickness = 1.6;
-height = 20;
+height = 15;
 
 hole_phone = [77.5, 9];
 hole_holster = [25, 7.5];
@@ -11,19 +11,20 @@ hole_strap = [25, 2.5];
 power_button_offset = 7;
 
 
-module bracket(hole, thickness, height) {
+module bracket(hole, thickness, height, round_edge = 0.49, round_hole = 0) {
     $fn = 48;
-    rounding = thickness * 0.49;
 
     linear_extrude(height, convexity = 10)
-    offset(rounding)
-    offset(- rounding)
     difference() {
+        offset(thickness * round_edge)
+        offset(- thickness * round_edge)
         square([
             hole.x + thickness * 2,
             hole.y + thickness * 2,
         ], center = true);
 
+        offset(thickness * round_hole)
+        offset(- thickness * round_hole)
         square(hole, center = true);
     }
 }
@@ -31,7 +32,6 @@ module bracket(hole, thickness, height) {
 
 module brrrracket(hole, thickness, height) {
     $fn = 48;
-    rounding = thickness * 0.49;
 
     r_in = hole.y / 2 + thickness;
     r_out = hole.y / 2;
@@ -87,18 +87,17 @@ module brracket(hole, thickness, height) {
 
 
 difference() {
-    bracket(hole_phone, thickness, height);
+    bracket(hole_phone, thickness, height, 2, 1);
 
-    translate([0, 0, height / 2 + power_button_offset])
+    translate([0, 0, - height / 2 + power_button_offset])
         cube([hole_phone.x + 1, hole_phone.y / 2, height], center = true);
 }
 
 translate([
     hole_phone.x / 2 - hole_holster.x / 2,
-    - (hole_phone.y + hole_holster.y) / 2 - thickness,
+    (hole_phone.y + hole_holster.y) / 2 + thickness,
     0,
 ])
-rotate([0, 0, 180])
 brracket(hole_holster, thickness, height * 2);
 
 translate([

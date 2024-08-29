@@ -4,11 +4,11 @@ use <../../lib/debug.scad>
 // Width of the nozzle
 NOZZLE = 0.4;
 
-// Hacklab Voron bed dimensions
-voron = [296, 290];
+// Bed dimensions
+bed = [225, 225];
 
 // Length of the feather
-stem = norm(voron) - 15;
+stem = norm(bed) - 15;
 
 // How many layers for the stem
 stem_layers = 6;
@@ -58,7 +58,7 @@ c_stem = [
     [stem, 0],
 ];
 
-ft_stem = function(t) clamp(NOZZLE * 2, (1 - t) * NOZZLE * 16, NOZZLE * 14);
+ft_stem = function(t) clamp(NOZZLE * 2, (1 - t) * NOZZLE * 20, NOZZLE * 16);
 
 
 module feather_stem() {
@@ -159,11 +159,11 @@ module feather_barbs_top() {
  * Bottom barbs *
  * ============ */
 
-a_bl = a_sl - 35;
-a_br = a_sr - 20;
+a_bl = a_sl - 40;
+a_br = a_sr - 15;
 
-s_bl = s_sl * 1.3;
-s_br = s_sr * 0.8;
+s_bl = s_sl * 1.4;
+s_br = s_sr * 0.9;
 
 // Control points for the edge of bottom barbs
 c_b = [
@@ -223,7 +223,7 @@ module feather_flavour() {
     url = "ftvkyo.me";
     font = "JetBrains Mono:style=Bold";
 
-    text(url, font = font, size = 4);
+    text(url, font = font, size = 3.5);
 }
 
 
@@ -244,8 +244,8 @@ module feather() {
     }
 
     color("black")
-    translate([8, 0.2, E])
-    rotate(10)
+    translate([7.5, 0.3, E])
+    rotate(10.5)
     linear_extrude(L * (stem_layers + 1))
         feather_flavour();
 }

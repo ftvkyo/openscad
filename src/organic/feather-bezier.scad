@@ -34,13 +34,13 @@ L = NOZZLE / 2;
 
 
 // Bend angle of the stem at the start
-a_sl = 15;
+a_sl = 10;
 
 // Bend angle of the stem at the end
 a_sr = 10;
 
 // Bend strength of the stem at the start
-s_sl = 75;
+s_sl = 100;
 
 // Bend strength of the stem at the end
 s_sr = 75;
@@ -108,11 +108,11 @@ module feather_barbs(c0, c1, c2, c3, ft) {
  * Top barbs *
  * ========= */
 
-a_tl = a_sl + 35;
-a_tr = a_sr + 35;
+a_tl = a_sl + 25;
+a_tr = a_sr + 30;
 
-s_tl = s_sl * 1.5;
-s_tr = s_sr * 0.9;
+s_tl = s_sl * 1.4;
+s_tr = s_sr * 0.85;
 
 // Control points for the edge of top barbs
 c_t = [
@@ -122,10 +122,10 @@ c_t = [
     c_stem[3],
 ];
 
-a_ttl = a_sl + 25;
-a_ttr = a_sr + 25;
+a_ttl = a_sl + 20;
+a_ttr = a_sr + 10;
 
-s_ttl = s_sl * 1.1;
+s_ttl = s_sl * 1.2;
 s_ttr = s_sr * 1.0;
 
 // Control points for the top bend of top barbs
@@ -139,7 +139,7 @@ c_tt = [
 a_tbl = a_sl + 10;
 a_tbr = a_sr + 10;
 
-s_tbl = s_sl * 1.2;
+s_tbl = s_sl * 1.25;
 s_tbr = s_sr * 0.9;
 
 // Control points for the bottom bend of top barbs
@@ -159,10 +159,10 @@ module feather_barbs_top() {
  * Bottom barbs *
  * ============ */
 
-a_bl = a_sl - 40;
-a_br = a_sr - 15;
+a_bl = a_sl - 25;
+a_br = a_sr - 10;
 
-s_bl = s_sl * 1.4;
+s_bl = s_sl * 1.25;
 s_br = s_sr * 0.9;
 
 // Control points for the edge of bottom barbs
@@ -174,10 +174,10 @@ c_b = [
 ];
 
 a_bbl = a_sl - 20;
-a_bbr = a_sr - 5;
+a_bbr = a_sr - 7.5;
 
 s_bbl = s_sl * 1.1;
-s_bbr = s_sr * 1.0;
+s_bbr = s_sr * 0.95;
 
 // Control points for the bottom bend of bottom barbs
 c_bb = [
@@ -188,7 +188,7 @@ c_bb = [
 ];
 
 a_btl = a_sl - 10;
-a_btr = a_sr - 10;
+a_btr = a_sr - 5;
 
 s_btl = s_sl * 1.2;
 s_btr = s_sr * 0.9;
@@ -244,8 +244,8 @@ module feather() {
     }
 
     color("black")
-    translate([7.5, 0.3, E])
-    rotate(10.5)
+    translate([12, 0.4, E])
+    rotate(8.5)
     linear_extrude(L * (stem_layers + 1))
         feather_flavour();
 }

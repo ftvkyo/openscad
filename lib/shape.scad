@@ -30,20 +30,41 @@ module ring(thickness, radius) {
         circle(thickness, $fn = 48);
 }
 
+module ringify(sides, side, thickness) {
+    side_a = 360 / sides;
+    for (a = [0 : side_a : 359]) {
+        rotate([0, 0, a])
+            children();
+    }
+}
+
 module multiring(sides, side, thickness) {
     // Correct (roughly) for the sides intersecting at the corners
     side_y = side + thickness;
-
     side_a = 360 / sides;
     side_x = side_y / tan(side_a / 2) / 2;
-
-    for (a = [0 : side_a : 359]) {
-        rotate([0, 0, a])
+    ringify(sides, side, thickness)
         capsule([
             [side_x, side_y / 2, 0],
             [side_x, - side_y / 2, 0],
         ], thickness / 2);
-    }
+}
+
+module multiray(sides, side, thickness) {
+    // Correct (roughly) for the sides intersecting at the corners
+    side_y = side + thickness;
+    side_a = 360 / sides;
+    side_x = side_y / sin(side_a / 2) / 2;
+
+    // p1 = [side_x, side_y / 2, 0];
+    // p2 = [side_x, - side_y / 2, 0];
+
+    p1 = [side_x, 0, 0];
+    p2 = [side_x + side_y, 0, 0];
+
+    ringify(sides, side, thickness)
+        rotate([0, 0, side_a / 2])
+        capsule([p1, p2], thickness / 2);
 }
 
 module pancake(thickness, radius) {

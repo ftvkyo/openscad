@@ -31,15 +31,8 @@ module pin() {
         hexagon();
 
         translate([0, 0, thickness_d * 2 / 3])
-        scale(1.1) {
+        scale(1.1)
             stick();
-
-            rotate([0, 0, 60])
-                stick();
-
-            rotate([0, 0, - 60])
-                stick();
-        }
     }
 }
 

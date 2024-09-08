@@ -87,3 +87,9 @@ module flatten(thickness) {
         cube([INF, INF, thickness], center = true);
     }
 }
+
+module spiral(length, thickness, radius, turns, scale = 1, center = false) {
+    linear_extrude(length, twist = turns * 360, slices = length, center = center, convexity = turns, scale = scale)
+    translate([radius, 0])
+        circle(thickness, $fn = 36);
+}

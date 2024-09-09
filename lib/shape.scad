@@ -88,8 +88,17 @@ module flatten(thickness) {
     }
 }
 
-module spiral(length, thickness, radius, turns, scale = 1, center = false) {
+module spiral(length, diameter, radius, turns, scale = 1, caps = true, center = false, $fn = 36) {
     linear_extrude(length, twist = turns * 360, slices = length, center = center, convexity = turns, scale = scale)
     translate([radius, 0])
-        circle(thickness, $fn = 36);
+        circle(diameter, $fn = $fn * 1);
+
+    if (caps) {
+        translate([radius, 0, - length / 2])
+            sphere(diameter, $fn = $fn * 2);
+
+        rotate([0, turns * 360, 0])
+        translate([radius * scale, 0, length / 2])
+            sphere(diameter * scale, $fn = $fn * 2);
+    }
 }

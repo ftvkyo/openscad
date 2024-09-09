@@ -6,9 +6,6 @@ module pin() {
 
     translate([0.8, 50, 0])
         sphere(5, $fn = 36);
-
-    translate([- 0.4, -50, 0])
-        sphere(3/2, $fn = 36);
 }
 
 

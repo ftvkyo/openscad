@@ -93,12 +93,21 @@ module spiral(length, diameter, radius, turns, scale = 1, caps = true, center = 
     translate([radius, 0])
         circle(diameter, $fn = $fn * 1);
 
-    if (caps) {
+    module the_caps() {
         translate([radius, 0, - length / 2])
             sphere(diameter, $fn = $fn * 2);
 
         rotate([0, turns * 360, 0])
         translate([radius * scale, 0, length / 2])
             sphere(diameter * scale, $fn = $fn * 2);
+    }
+
+    if (caps) {
+        if (center) {
+            the_caps();
+        } else {
+            translate([0, 0, length / 2])
+                the_caps();
+        }
     }
 }

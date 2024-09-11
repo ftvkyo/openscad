@@ -1,6 +1,6 @@
-_pic = [141, 0.5, 195];
-_p = 2; // Padding
-_m = 5; // Margin
+_pic = [142, 0.8, 191];
+_p = 4; // Padding
+_m = 4; // Margin
 _t = 5; // Thickness
 
 module pic() {
@@ -10,7 +10,7 @@ module pic() {
 
 module frame() {
     module window() {
-        cube([_pic.x - _p, _t * 2, _pic.z - _p], center = true);
+        cube([_pic.x - _p * 2, _t * 2, _pic.z - _p * 2], center = true);
     }
 
     module frame() {
@@ -28,7 +28,6 @@ module frame() {
         translate([0, 0, _m * 2])
             pic();
     }
-
 }
 
 module base() {

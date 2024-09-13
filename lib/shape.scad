@@ -98,7 +98,7 @@ module spiral(length, diameter, radius, turns, scale = 1, caps = true, center = 
             sphere(diameter, $fn = $fn * 2);
 
         rotate([0, turns * 360, 0])
-        translate([radius * scale, 0, length / 2])
+        translate([radius * scale, 0, - length / 2])
             sphere(diameter * scale, $fn = $fn * 2);
     }
 

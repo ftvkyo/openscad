@@ -9,16 +9,4 @@ module pin() {
 }
 
 
-intersection() {
-    translate([0, 0, 500])
-        cube(1000, center = true);
-
-    union() {
-        translate([5, 0, 0])
-        pin();
-
-        translate([-5, 0, 0])
-        rotate([0, 180, 180])
-            pin();
-    }
-}
+pin();

@@ -1,4 +1,4 @@
-use <../../lib/shape.scad>
+use <../lib/shape.scad>
 
 $fn = 48;
 

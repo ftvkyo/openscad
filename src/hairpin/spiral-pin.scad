@@ -1,4 +1,4 @@
-use <../../../lib/shape.scad>
+use <../../lib/shape.scad>
 
 module pin() {
     rotate([90, 0, 0])

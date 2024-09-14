@@ -1,4 +1,4 @@
-use <../../../lib/shape.scad>
+use <../../lib/shape.scad>
 
 
 side_length = 25;

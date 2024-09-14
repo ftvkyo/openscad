@@ -1,15 +1,12 @@
-use <../../../lib/shape.scad>
+use <../../lib/shape.scad>
 
 thickness_d = 5;
-stick_l = 100;
+stick_l = 80;
 side_l = 20;
 
 module hexagon() {
-    flatten(thickness_d * 4 / 5) {
+    flatten(thickness_d * 4 / 5)
         multiring(6, side_l, thickness_d);
-
-        multiray(6, side_l, thickness_d);
-    }
 }
 
 module stick() {
@@ -30,13 +27,12 @@ module pin() {
     difference() {
         hexagon();
 
-        translate([0, 0, thickness_d * 2 / 3])
-        scale(1.1)
-            stick();
+        translate([0, 0, thickness_d * 0.6])
+        stick();
     }
 }
 
 pin();
 
-translate([0, side_l * 3, 0])
+translate([0, side_l * 2, 0])
     stick();

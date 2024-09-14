@@ -39,9 +39,9 @@ module base() {
         rotate([90, 0, 90])
         linear_extrude(_pic.x + _m * 2 - 0.025, center = true)
             polygon([
-                [- _m, - _m] * 2,
+                [- _m * 4, - _m * 2],
                 [0, _p],
-                [_m, - _m] * 2,
+                [_m * 4, - _m * 2],
             ]);
 
         translate([0, 0, _pic.z / 2])

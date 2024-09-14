@@ -6,18 +6,18 @@ wall = 4;
 
 E = 0.02;
 
-module _round() {
+module _round(r) {
     $fn = 36;
 
-    offset(rounding)
-    offset(- rounding)
+    offset(r)
+    offset(- r)
         children();
 }
 
 
 module base() {
     linear_extrude(height)
-    _round()
+    _round(rounding)
         square([side, side] + [wall, wall] / 2, center = true);
 }
 
@@ -25,7 +25,7 @@ module base() {
 module compartment(dim) {
     module shape() {
         linear_extrude(dim.z)
-        _round()
+        _round(rounding * 2/3)
             square([dim.x, dim.y], center = true);
     }
 

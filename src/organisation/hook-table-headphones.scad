@@ -1,5 +1,5 @@
 table_thickness = 16.2;
-table_edge_hole_offset = 10;
+table_edge_hole_offset = 10.1;
 screw_hole_d = 5;
 screw_cap_d = 8.5;
 
@@ -8,19 +8,21 @@ E = 0.01;
 
 
 module hook() {
-    $fn = 64;
+    $fn = 128;
 
     width = 25;
     length = 50;
     thickness = 7.5;
 
-    module under_table() {
-        // How thick is the place that is squished against the table by the screw
-        bearing = 2;
+    // How thick is the place that is squished against the table by the screw
+    bearing = 2.5;
 
+    module under_table() {
         translate([0, 0, - thickness / 2])
         difference() {
-            cube([table_edge_hole_offset * 2, width, thickness], center = true);
+            linear_extrude(thickness, center = true)
+            translate([thickness / 4, 0])
+                square([table_edge_hole_offset * 2 + thickness / 2, width], center = true);
 
             cylinder(thickness + E, r = screw_hole_d / 2, center = true);
 
@@ -32,14 +34,31 @@ module hook() {
         }
     }
 
+    module profile() {
+        flatten = 0.95;
+
+        intersection() {
+            scale([thickness, width * (2 - flatten)])
+                circle(1 / 2);
+
+            square([thickness, width], center = true);
+        }
+    }
+
     module side() {
         translate([thickness / 2 - E, 0, - length / 2])
-            cube([thickness, width, length], center = true);
+        linear_extrude(length, center = true)
+            profile();
 
         translate([0, 0, - E])
         intersection() {
             translate([thickness / 2, 0, thickness / 2])
-                cube([thickness, width, thickness], center = true);
+            linear_extrude(thickness, center = true) {
+                profile();
+
+                translate([- thickness / 4, 0])
+                    square([thickness / 2, width], center = true);
+            }
 
             rotate([90, 0, 0])
                 cylinder(width, r = thickness, center = true);
@@ -49,20 +68,20 @@ module hook() {
     module bend() {
         extent = 50;
 
-        translate([extent / 2, 0, 0])
-        intersection() {
-            union() {
-                scale([1, 1.25, 1])
-                rotate([0, 90, 0])
-                    cylinder(extent, r = width / 2, center = true);
+        translate([(extent - thickness) / 2, 0, 0])
+        rotate([-90, 0, 0]) {
+            rotate_extrude(angle = 180)
+            translate([extent / 2, 0])
+                profile();
 
-                translate([(extent + thickness) / 2 - E, 0, 0])
-                rotate([0, 90, 0])
-                    cylinder(thickness, r = width * 3 / 4, center = true);
+            translate([extent / 2, E, 0])
+            rotate_extrude(angle = 180)
+            intersection() {
+                profile();
+
+                translate([- thickness / 4, 0])
+                    square([thickness / 2, width], center = true);
             }
-
-            translate([thickness / 2, 0, width / 2])
-                cube([extent + thickness, width, width], center = true);
         }
     }
 

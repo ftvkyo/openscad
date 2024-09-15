@@ -17,3 +17,12 @@ module arrange_row(step) {
     translate(step * i)
         children(i);
 }
+
+
+module lextrude(
+    height,
+    center = false,
+    convexity = 10,
+    angle = 0
+) {
+}

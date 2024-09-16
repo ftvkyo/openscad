@@ -17,7 +17,7 @@ module hook() {
     // How thick is the place that is squished against the table by the screw
     bearing = 2.5;
 
-    module under_table() {
+    module attachment() {
         translate([0, 0, - thickness / 2])
         difference() {
             linear_extrude(thickness, center = true)
@@ -85,7 +85,7 @@ module hook() {
         }
     }
 
-    under_table();
+    attachment();
 
     translate([table_edge_hole_offset - E, 0, 0])
         side();

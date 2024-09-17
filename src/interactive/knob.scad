@@ -46,6 +46,7 @@ module bearing(
     ball_count,
     ball_diameter,
     ball_margin,
+    cage_margin,
 ) {
     // Diameter where the ball is
     diameter = (shell_outer_diameter + shell_inner_diameter) / 2;
@@ -65,7 +66,7 @@ module bearing(
     // Space allocated for a ball in the cage
     cage_ball_r = ball_diameter / 2 + ball_margin;
     // Width of the structural flat ring part of the cage
-    cage_w = gap_inner_w - ball_margin;
+    cage_w = gap_inner_w - cage_margin * 2;
 
     module repeat_balls() {
         for (a = [360 / ball_count : 360 / ball_count : 360]) {
@@ -350,7 +351,8 @@ module assembly() {
         shell_inner_joiner_height = 4,
         ball_diameter = 3.5,
         ball_count = 12,
-        ball_margin = 0.3
+        ball_margin = 0.15,
+        cage_margin = 0.4
     ) {
         translate([0, 0, - 2]) screw_M2x6(hole = true);
         heat_insert_M2(hole = true);
@@ -358,14 +360,20 @@ module assembly() {
 }
 
 module cuts() {
-    projection(cut = true)
-    rotate([90, 0, 0])
-        assembly();
+    intersection() {
+        union() {
+            translate([0, 11, 0])
+            rotate([90, 0, 0])
+                assembly();
 
-    translate([0, - 20 - 1])
-    projection(cut = true)
-    rotate([90, 360 / 24, 0])
-        assembly();
+            translate([0, - 11, 0])
+            rotate([90, 360 / 24, 0])
+                assembly();
+        }
+
+        translate([0, 0, - INF / 2])
+            cube(INF, center = true);
+    }
 }
 
 if (CUT)

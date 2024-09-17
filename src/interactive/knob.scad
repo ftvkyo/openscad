@@ -29,9 +29,11 @@ module _render(r) {
 
 
 module bearing(
+    shell_height,
     shell_outer_diameter,
     shell_inner_diameter,
-    shell_height,
+    shell_inner_joiner_count,
+    shell_inner_joiner_height,
     ball_count,
     ball_diameter,
     ball_margin,
@@ -112,6 +114,42 @@ module bearing(
         }
     }
 
+    module repeat_shell_inner_joiners() {
+        for (a = [360 / shell_inner_joiners : 360 / shell_inner_joiners : 360]) {
+            rotate([0, 0, a])
+            translate([shell_inner_diameter / 2, 0, 0])
+                children();
+        }
+    }
+
+    module shell_inner_joiners() {
+        r = shell_inner_diameter / 4;
+        rounding = r / 4;
+
+        module profile() {
+            intersection() {
+                offset(-rounding)
+                offset(rounding) {
+                    for (a = [360 / shell_inner_joiner_count : 360 / shell_inner_joiner_count : 360]) {
+                        rotate([0, 0, a])
+                        translate([shell_inner_diameter / 2, 0, 0])
+                            circle(r);
+                    }
+
+                    difference() {
+                        circle(shell_inner_diameter / 2 + r);
+                        circle(shell_inner_diameter / 2);
+                    }
+                }
+
+                circle(diameter / 2 - gap_ball_r);
+            }
+        }
+
+        linear_extrude(shell_inner_joiner_height, $fn = fn_rotate_extrude)
+            profile();
+    }
+
     module shell_inner_half() {
         rotate_extrude($fn = fn_rotate_extrude)
         intersection() {
@@ -126,6 +164,8 @@ module bearing(
                 [0, shell_height / 2],
             ]);
         }
+
+        shell_inner_joiners();
     }
 
     module shell_outer() {
@@ -214,9 +254,11 @@ module bearing(
 
 module assembly() {
     bearing(
+        shell_height = 20,
         shell_outer_diameter = 30,
         shell_inner_diameter = 15,
-        shell_height = 20,
+        shell_inner_joiner_count = 3,
+        shell_inner_joiner_height = 5,
         ball_diameter = 3.5,
         ball_count = 12,
         ball_margin = 0.3

@@ -6,8 +6,11 @@
 // What to display and export
 RENDER = "all"; // ["all", "bearing-outer", "bearing-inner-top", "bearing-inner-bottom", "bearing-cage"]
 
+// Whether to show the model or its cuts
+CUT = false;
+
 // Resolution
-$fn = 24; // [12, 24, 48]
+$fn = 24; // [12, 24, 36, 48]
 // Rotational resolution
 fn_rotate_extrude = 36; // [36, 72, 180]
 
@@ -18,6 +21,9 @@ fn_debug = 12;
 
 // Floating point error correction
 E = 0.01;
+
+// Infinity
+INF = 10 ^ 3;
 
 
 /* ======= *
@@ -52,7 +58,7 @@ module bearing(
     // Gap connecting the ball grooves together
     gap_inner_w = gap_ball_r;
     // Gap connecting the ball grooves to the outside
-    gap_outer_w = gap_ball_r / 2;
+    gap_outer_w = gap_ball_r;
 
     // Radius of the crossection of the torus part of the cage
     cage_r = ball_diameter / 3;
@@ -126,7 +132,7 @@ module bearing(
     }
 
     module shell_inner_joiners() {
-        r = shell_inner_diameter / 4;
+        r = shell_inner_diameter / 3;
         rounding = r / 4;
 
         module repeat_at_d(d) {
@@ -139,18 +145,18 @@ module bearing(
 
         module profile() {
             intersection() {
-                offset(-rounding)
+                offset(- rounding)
                 offset(rounding) {
                     repeat_at_d(shell_inner_diameter)
                         circle(r);
 
                     difference() {
-                        circle(shell_inner_diameter / 2 + r);
-                        circle(shell_inner_diameter / 2);
+                        circle(shell_inner_diameter / 2 + r, $fn = fn_rotate_extrude);
+                        circle(shell_inner_diameter / 2 + E, $fn = fn_rotate_extrude);
                     }
                 }
 
-                circle(diameter / 2 - gap_ball_r);
+                circle(diameter / 2 - gap_ball_r - E, $fn = fn_rotate_extrude);
             }
         }
 
@@ -186,6 +192,7 @@ module bearing(
             ]);
         }
 
+        translate([0, 0, E])
         shell_inner_joiners()
             children();
     }
@@ -280,14 +287,14 @@ module bearing(
 
 
 module screw(
-    thread_l,
-    thread_d,
+    screw_l,
+    screw_d,
     cap_l,
     cap_d
 ) {
     translate([0, 0, cap_l + E])
     rotate([180, 0, 0]) {
-        cylinder(cap_l + thread_l, r = thread_d / 2);
+        cylinder(cap_l + screw_l, r = screw_d / 2);
         cylinder(cap_l, r = cap_d / 2);
     }
 }
@@ -295,28 +302,36 @@ module screw(
 
 module screw_M2x6(hole = false) {
     screw(
-        thread_l = hole ? 6 : 5.5,
-        thread_d = hole ? 2 : 1.75,
-        cap_l = 1.75,
-        cap_d = 3.5
+        screw_l = hole ? 6 : 5.5,
+        screw_d = hole ? 2 : 1.75,
+        cap_l = hole ? INF : 1.75,
+        cap_d = hole ? 4 : 3.5
     );
 }
 
 
 module heat_insert(
-    l,
-    d
+    insert_l,
+    insert_d,
+    screw_l,
+    screw_d,
 ) {
     translate([0, 0, E])
-    rotate([180, 0, 0])
-        cylinder(l, r = d / 2);
+    rotate([180, 0, 0]) {
+        cylinder(insert_l, r = insert_d / 2);
+        if (is_num(screw_d)) {
+            cylinder(is_num(screw_l) ? screw_l : INF, r = screw_d / 2);
+        }
+    }
 }
 
 
 module heat_insert_M2(hole = false) {
     heat_insert(
-        l = 3,
-        d = hole ? 3.1 : 3.5
+        insert_l = 3,
+        insert_d = hole ? 3.2 : 3.5,
+        screw_l = undef,
+        screw_d = hole ? 2 : undef
     );
 }
 
@@ -332,19 +347,17 @@ module assembly() {
         shell_outer_diameter = 30,
         shell_inner_diameter = 15,
         shell_inner_joiner_count = 3,
-        shell_inner_joiner_height = 3.5,
+        shell_inner_joiner_height = 4,
         ball_diameter = 3.5,
         ball_count = 12,
         ball_margin = 0.3
     ) {
-        screw_M2x6(hole = true);
+        translate([0, 0, - 2]) screw_M2x6(hole = true);
         heat_insert_M2(hole = true);
     }
 }
 
-assembly();
-
-module projections() {
+module cuts() {
     projection(cut = true)
     rotate([90, 0, 0])
         assembly();
@@ -355,4 +368,7 @@ module projections() {
         assembly();
 }
 
-// projections();
+if (CUT)
+    cuts();
+else
+    assembly();

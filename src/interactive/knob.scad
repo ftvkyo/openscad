@@ -438,11 +438,11 @@ module assembly() {
 module cuts() {
     intersection() {
         union() {
-            translate([0, 20, 0])
+            translate([25, 0, 0])
             rotate([90, 0, 0])
                 assembly();
 
-            translate([0, - 20, 0])
+            translate([-25, 0, 0])
             rotate([90, 360 / 24, 0])
                 assembly();
         }

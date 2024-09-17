@@ -1,6 +1,31 @@
-$fn = 24;
-fn_ball = 12;
-fn_bearing = 36;
+/* ========== *
+ * Parameters *
+ * ========== */
+
+
+// What to display and export
+RENDER = "all"; // ["all", "bearing-outer", "bearing-inner-top", "bearing-inner-bottom", "bearing-cage"]
+
+// Resolution
+$fn = 24; // [12, 24, 48]
+// Rotational resolution
+fn_rotate_extrude = 36; // [36, 72, 180]
+
+/* [Hidden] */
+
+// Faces on debug balls
+fn_debug = 12;
+
+
+/* ======= *
+ * Modules *
+ * ======= */
+
+
+module _render(r) {
+    if (RENDER == "all" || RENDER == r)
+        children();
+}
 
 
 module bearing(
@@ -41,52 +66,85 @@ module bearing(
 
     module ball() {
         color("grey")
-            sphere(ball_diameter / 2, $fn = fn_ball);
+            sphere(ball_diameter / 2, $fn = fn_debug);
     }
 
-    module shell() {
-        module profile() {
-            module base() {
-                translate([(shell_inner_diameter + wall_w) / 2, 0])
-                    square([wall_w, shell_height], center = true);
-            }
-
-            module ball_groove() {
-                module single() {
-                    translate([diameter / 2, shell_height / 4])
-                    intersection() {
-                        rotate(45)
-                            square([gap_ball_r * 3, gap_ball_r * 2], center = true);
-                        square([gap_ball_r * 2, gap_ball_r * 3], center = true);
-                    }
-                }
-
-                single();
-
-                mirror([0, 1])
-                    single();
-            }
-
-            module gap() {
-                translate([diameter / 2 - gap_ball_r + gap_inner_w / 2, 0])
-                    square([gap_inner_w, shell_height / 2], center = true);
-
-                translate([diameter / 2 + gap_ball_r - gap_outer_w / 2, shell_height / 2])
-                    square([gap_outer_w, shell_height / 2], center = true);
-
-                translate([diameter / 2 + gap_ball_r - gap_outer_w / 2, - shell_height / 2])
-                    square([gap_outer_w, shell_height / 2], center = true);
-            }
-
-            difference() {
-                base();
-                ball_groove();
-                gap();
-            }
+    module shell_profile() {
+        module base() {
+            translate([(shell_inner_diameter + wall_w) / 2, 0])
+                square([wall_w, shell_height], center = true);
         }
 
-        rotate_extrude($fn = fn_bearing)
-            profile();
+        module ball_groove() {
+            module single() {
+                translate([diameter / 2, shell_height / 4])
+                intersection() {
+                    rotate(45)
+                        square([gap_ball_r * 3, gap_ball_r * 2], center = true);
+                    square([gap_ball_r * 2, gap_ball_r * 3], center = true);
+                }
+            }
+
+            single();
+
+            mirror([0, 1])
+                single();
+        }
+
+        module gap() {
+            // Gap connecting the ball grooves
+            translate([diameter / 2 - gap_ball_r + gap_inner_w / 2, 0])
+                square([gap_inner_w, shell_height / 2], center = true);
+
+            // Gap connecting the top ball groove to the top of the bearing
+            translate([diameter / 2 + gap_ball_r - gap_outer_w / 2, shell_height / 2])
+                square([gap_outer_w, shell_height / 2], center = true);
+
+            // Gap connecting the bottom ball groove to the bottom of the bearing
+            translate([diameter / 2 + gap_ball_r - gap_outer_w / 2, - shell_height / 2])
+                square([gap_outer_w, shell_height / 2], center = true);
+        }
+
+        difference() {
+            base();
+            ball_groove();
+            gap();
+        }
+    }
+
+    module shell_inner_half() {
+        rotate_extrude($fn = fn_rotate_extrude)
+        intersection() {
+            shell_profile();
+
+            polygon([
+                [0, 0],
+                [diameter / 2 - gap_ball_r + gap_inner_w / 2, 0],
+                [diameter / 2 - gap_ball_r + gap_inner_w / 2, shell_height / 4],
+                [diameter / 2 + gap_ball_r - gap_outer_w / 2, shell_height / 4],
+                [diameter / 2 + gap_ball_r - gap_outer_w / 2, shell_height / 2],
+                [0, shell_height / 2],
+            ]);
+        }
+    }
+
+    module shell_outer() {
+        rotate_extrude($fn = fn_rotate_extrude)
+        intersection() {
+            shell_profile();
+
+            polygon([
+                [diameter / 2 - gap_ball_r + gap_inner_w / 2, 0],
+                [diameter / 2 - gap_ball_r + gap_inner_w / 2, - shell_height / 4],
+                [diameter / 2 + gap_ball_r - gap_outer_w / 2, - shell_height / 4],
+                [diameter / 2 + gap_ball_r - gap_outer_w / 2, - shell_height / 2],
+                [shell_outer_diameter / 2, - shell_height / 2],
+                [shell_outer_diameter / 2, shell_height / 2],
+                [diameter / 2 + gap_ball_r - gap_outer_w / 2, shell_height / 2],
+                [diameter / 2 + gap_ball_r - gap_outer_w / 2, shell_height / 4],
+                [diameter / 2 - gap_ball_r + gap_inner_w / 2, shell_height / 4],
+            ]);
+        }
     }
 
     module cage_ball() {
@@ -106,7 +164,7 @@ module bearing(
 
     module cage() {
         difference() {
-            rotate_extrude($fn = fn_bearing)
+            rotate_extrude($fn = fn_rotate_extrude)
                 cage_profile();
 
             translate([0, 0, shell_height / 4])
@@ -115,24 +173,43 @@ module bearing(
         }
     }
 
+    _render()
     translate([0, 0, shell_height / 4])
     repeat_balls()
         ball();
 
+    _render()
     translate([0, 0, - shell_height / 4])
     repeat_balls()
         ball();
 
+    _render("bearing-outer")
     color("#00FF00")
-        shell();
+        shell_outer();
 
+    _render("bearing-inner-top")
+    color("#0000FF")
+        shell_inner_half();
+
+    _render("bearing-inner-bottom")
+    color("#0000FF")
+    mirror([0, 0, 1])
+        shell_inner_half();
+
+    _render("bearing-cage")
     color("#FF0000")
         cage();
 
+    _render()
     color("#FF0000")
     mirror([0, 0, 1])
         cage();
 }
+
+
+/* ======== *
+ * Assembly *
+ * ======== */
 
 
 module assembly() {
@@ -146,6 +223,8 @@ module assembly() {
     );
 }
 
+assembly();
+
 module projections() {
     projection(cut = true)
     rotate([90, 0, 0])
@@ -157,5 +236,4 @@ module projections() {
         assembly();
 }
 
-// assembly();
-projections();
+// projections();

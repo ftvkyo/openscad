@@ -16,6 +16,9 @@ fn_rotate_extrude = 36; // [36, 72, 180]
 // Faces on debug balls
 fn_debug = 12;
 
+// Floating point error correction
+E = 0.01;
+
 
 /* ======= *
  * Modules *
@@ -126,15 +129,20 @@ module bearing(
         r = shell_inner_diameter / 4;
         rounding = r / 4;
 
+        module repeat_at_d(d) {
+            for (a = [360 / shell_inner_joiner_count : 360 / shell_inner_joiner_count : 360]) {
+                rotate([0, 0, a])
+                translate([d / 2, 0, 0])
+                    children();
+            }
+        }
+
         module profile() {
             intersection() {
                 offset(-rounding)
                 offset(rounding) {
-                    for (a = [360 / shell_inner_joiner_count : 360 / shell_inner_joiner_count : 360]) {
-                        rotate([0, 0, a])
-                        translate([shell_inner_diameter / 2, 0, 0])
-                            circle(r);
-                    }
+                    repeat_at_d(shell_inner_diameter)
+                        circle(r);
 
                     difference() {
                         circle(shell_inner_diameter / 2 + r);
@@ -146,8 +154,21 @@ module bearing(
             }
         }
 
-        linear_extrude(shell_inner_joiner_height, $fn = fn_rotate_extrude)
-            profile();
+        module base() {
+            linear_extrude(shell_inner_joiner_height, convexity = 10)
+                profile();
+        }
+
+        if ($children > 0)
+            difference() {
+                base();
+
+                repeat_at_d(shell_inner_diameter - r)
+                translate([0, 0, shell_inner_joiner_height])
+                    children();
+            }
+        else
+            base();
     }
 
     module shell_inner_half() {
@@ -165,7 +186,8 @@ module bearing(
             ]);
         }
 
-        shell_inner_joiners();
+        shell_inner_joiners()
+            children();
     }
 
     module shell_outer() {
@@ -224,26 +246,78 @@ module bearing(
         ball();
 
     _render("bearing-outer")
-    color("#00FF00")
+    color("green")
         shell_outer();
 
     _render("bearing-inner-top")
-    color("#0000FF")
+    color("blue")
+    if ($children > 0) {
+        shell_inner_half()
+            children(0);
+    } else {
         shell_inner_half();
+    }
 
     _render("bearing-inner-bottom")
-    color("#0000FF")
+    color("blue")
     mirror([0, 0, 1])
+    if ($children > 1) {
+        shell_inner_half()
+            children(1);
+    } else {
         shell_inner_half();
+    }
 
     _render("bearing-cage")
-    color("#FF0000")
+    color("red")
         cage();
 
     _render()
-    color("#FF0000")
+    color("red")
     mirror([0, 0, 1])
         cage();
+}
+
+
+module screw(
+    thread_l,
+    thread_d,
+    cap_l,
+    cap_d
+) {
+    translate([0, 0, cap_l + E])
+    rotate([180, 0, 0]) {
+        cylinder(cap_l + thread_l, r = thread_d / 2);
+        cylinder(cap_l, r = cap_d / 2);
+    }
+}
+
+
+module screw_M2x6(hole = false) {
+    screw(
+        thread_l = hole ? 6 : 5.5,
+        thread_d = hole ? 2 : 1.75,
+        cap_l = 1.75,
+        cap_d = 3.5
+    );
+}
+
+
+module heat_insert(
+    l,
+    d
+) {
+    translate([0, 0, E])
+    rotate([180, 0, 0])
+        cylinder(l, r = d / 2);
+}
+
+
+module heat_insert_M2(hole = false) {
+    heat_insert(
+        l = 3,
+        d = hole ? 3.1 : 3.5
+    );
 }
 
 
@@ -258,11 +332,14 @@ module assembly() {
         shell_outer_diameter = 30,
         shell_inner_diameter = 15,
         shell_inner_joiner_count = 3,
-        shell_inner_joiner_height = 5,
+        shell_inner_joiner_height = 3.5,
         ball_diameter = 3.5,
         ball_count = 12,
         ball_margin = 0.3
-    );
+    ) {
+        screw_M2x6(hole = true);
+        heat_insert_M2(hole = true);
+    }
 }
 
 assembly();

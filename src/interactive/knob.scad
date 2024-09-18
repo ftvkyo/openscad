@@ -43,6 +43,9 @@ module bearing(
     shell_inner_diameter,
     shell_inner_joiner_count,
     shell_inner_joiner_height,
+    // Gap between the two halves of the inner shell so they can be pressed further
+    // into each other and squeeze the balls.
+    shell_inner_gap,
     ball_count,
     ball_diameter,
     ball_margin,
@@ -179,23 +182,30 @@ module bearing(
     }
 
     module shell_inner_half() {
-        rotate_extrude($fn = fn_rotate_extrude)
         intersection() {
-            shell_profile();
+            union() {
+                rotate_extrude($fn = fn_rotate_extrude)
+                intersection() {
+                    shell_profile();
 
-            polygon([
-                [0, 0],
-                [diameter / 2 - gap_ball_r + gap_inner_w / 2, 0],
-                [diameter / 2 - gap_ball_r + gap_inner_w / 2, shell_height / 4],
-                [diameter / 2 + gap_ball_r - gap_outer_w / 2, shell_height / 4],
-                [diameter / 2 + gap_ball_r - gap_outer_w / 2, shell_height / 2],
-                [0, shell_height / 2],
-            ]);
+                    polygon([
+                        [0, 0],
+                        [diameter / 2 - gap_ball_r + gap_inner_w / 2, 0],
+                        [diameter / 2 - gap_ball_r + gap_inner_w / 2, shell_height / 4],
+                        [diameter / 2 + gap_ball_r - gap_outer_w / 2, shell_height / 4],
+                        [diameter / 2 + gap_ball_r - gap_outer_w / 2, shell_height / 2],
+                        [0, shell_height / 2],
+                    ]);
+                }
+
+                translate([0, 0, E])
+                shell_inner_joiners()
+                    children();
+            }
+
+            translate([0, 0, INF / 2 + shell_inner_gap / 2])
+                cube(INF, center = true);
         }
-
-        translate([0, 0, E])
-        shell_inner_joiners()
-            children();
     }
 
     module shell_outer() {
@@ -224,9 +234,26 @@ module bearing(
     module cage_profile() {
         offset(- gap_ball_r / 2)
         offset(gap_ball_r / 2) {
-            translate([diameter / 2, shell_height / 4])
+            // Torus that holds the balls
+            translate([diameter / 2, shell_height / 4]) {
                 circle(cage_r);
 
+                // Reinforcement of the connection with the ring
+                intersection() {
+                    translate([- cage_r, - cage_r] / sqrt(2))
+                    rotate(45)
+                        square(cage_r * 2, center = true);
+
+                    extent_l = gap_ball_r - gap_inner_w / 2 + cage_w / 2;
+                    extent_r = cage_r;
+                    w = extent_l + extent_r;
+
+                    translate([(extent_r - extent_l) / 2, 0])
+                        square([w, shell_height / 2], center = true);
+                }
+            }
+
+            // Ring that reinforces the torus
             translate([diameter / 2 - gap_ball_r + gap_inner_w / 2, shell_height * 3 / 20])
                 square([cage_w, shell_height / 5], center = true);
         }
@@ -418,6 +445,7 @@ module assembly() {
         shell_inner_diameter = 15,
         shell_inner_joiner_count = 3,
         shell_inner_joiner_height = 4,
+        shell_inner_gap = 0,
         ball_diameter = 3.5,
         ball_count = 12,
         ball_margin = 0.15,

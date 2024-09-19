@@ -20,8 +20,8 @@ module fillet(r) {
 
 module tray() {
     width = 150;
-    height = 3;
-    depth = 2;
+    height = 10;
+    depth = 9;
     rounding = 5;
     wall = 1;
     angle = 30; // Degrees

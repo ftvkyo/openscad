@@ -1,4 +1,4 @@
-use <../../lib/operators.scad>
+use <../../lib/ops.scad>
 
 
 L = 0.1;

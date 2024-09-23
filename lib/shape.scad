@@ -1,3 +1,6 @@
+use <ops.scad>
+
+
 module capsule(points, radius, caps = true) {
     $fn = 48;
 
@@ -101,4 +104,40 @@ module spiral(length, diameter, radius, turns, scale = 1, caps = true, center = 
                 the_caps();
         }
     }
+}
+
+
+module torus(
+    radius,
+    thickness,
+    delta_z = 0,
+    waves = 0,
+    fn_profile = 36,
+    fn_loop = 180,
+) {
+    function slice_tilt(t) = [- sin(waves * t * 360) * delta_z * waves * 2/3, 0, 0];
+    function slice_displacement(t) = [0, 0, cos(waves * t * 360) * delta_z / 2];
+
+    c_base = pts_translate3(
+        pts_rotate3(
+            pts_inflate(pts_circle(thickness / 2, fn_profile)),
+            [90, 0, 0]
+        ),
+        [radius + thickness / 2, 0, 0]
+    );
+
+    cs = [ for (t = [1 / fn_loop : 1 / fn_loop : 1])
+        pts_translate3(
+            pts_rotate3(
+                pts_rotate3(
+                    c_base,
+                    slice_tilt(t)
+                ),
+                [0, 0, t * 360]
+            ),
+            slice_displacement(t)
+        )
+    ];
+
+    pts_extrude(cs);
 }

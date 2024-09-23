@@ -1,5 +1,5 @@
 use <../../lib/shape.scad>
-use <../../lib/operators.scad>
+use <../../lib/ops.scad>
 
 
 w = 25;

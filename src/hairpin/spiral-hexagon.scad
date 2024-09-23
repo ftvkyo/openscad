@@ -1,4 +1,5 @@
 use <../../lib/shape.scad>
+use <../../lib/operators.scad>
 
 
 side_length = 25;

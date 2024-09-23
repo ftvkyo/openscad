@@ -1,4 +1,5 @@
 use <../../lib/shape.scad>
+use <../../lib/operators.scad>
 
 thickness_d = 5;
 stick_l = 100;

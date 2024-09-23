@@ -19,10 +19,11 @@ module arrange_row(step) {
 }
 
 
-module lextrude(
-    height,
-    center = false,
-    convexity = 10,
-    angle = 0
-) {
+module flatten(thickness) {
+    INF = 10 ^ 5;
+
+    intersection() {
+        children();
+        cube([INF, INF, thickness], center = true);
+    }
 }

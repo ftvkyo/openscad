@@ -1,5 +1,3 @@
-INF = 10 ^ 5;
-
 module capsule(points, radius, caps = true) {
     $fn = 48;
 
@@ -78,13 +76,6 @@ module pancake(thickness, radius) {
             [radius, - thickness],
             [0, - thickness],
         ]);
-    }
-}
-
-module flatten(thickness) {
-    intersection() {
-        children();
-        cube([INF, INF, thickness], center = true);
     }
 }
 

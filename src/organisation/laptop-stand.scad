@@ -2,9 +2,12 @@
  * Parameters *
  * ========== */
 
-$fn = 24;
-NOZ = 0.4;
-E = 0.01;
+/* [Output] */
+
+RENDER = "all"; // ["all", "joint", "leg1", "leg2", "lock"]
+
+
+/* [Parameters] */
 
 // Laptop dimensions
 laptop = [200, 300, 15];
@@ -23,7 +26,7 @@ leg_notch_offset = 10;
 leg_hole_offset = 15;
 
 // How much to round the corners
-rounding = 5;
+rounding = 4;
 
 // Screw radius
 hole_r = 3 / 2;
@@ -34,6 +37,13 @@ hole_spread = 6;
 
 joint_h = 24;
 joint_cap_h = 4;
+
+
+/* [Hidden] */
+
+$fn = 24;
+NOZ = 0.4;
+E = 0.01;
 
 halfjoint_h = (joint_h - NOZ) / 2;
 
@@ -65,25 +75,40 @@ holes = [
  * Modules *
  * ======= */
 
+module _render(r) {
+    if (is_undef(r) && RENDER == "all" || RENDER == r)
+        children();
+}
+
 // 2D base of the leg, not scaled for the leg angle
 module leg_base() {
     // notch_offset = 0;
 
     p_origin = [0, 0];
     p_front_bottom = [support.x + notch.x + leg_notch_offset, 0];
-    p_notch_front_top = [support.x + notch.x + leg_notch_offset, laptop_lift + notch.y];
-    p_notch_back_top = [support.x + notch.x, laptop_lift + notch.y];
+    p_notch_front_top = [support.x + notch.x + leg_notch_offset, laptop_lift + notch.y * 3/2];
+    p_notch_back_top = [support.x + notch.x - leg_notch_offset, laptop_lift + notch.y * 2];
+    p_notch_back_middle = [support.x + notch.x, laptop_lift + notch.y];
     p_notch_back_bottom = [support.x, laptop_lift];
     p_back_top = [0, support.y + laptop_lift];
 
-    polygon([
+    ps = [
         p_origin,
         p_front_bottom,
         p_notch_front_top,
         p_notch_back_top,
+        p_notch_back_middle,
         p_notch_back_bottom,
         p_back_top,
-    ]);
+    ];
+
+    polygon(ps);
+
+    // %for (p = ps) {
+    //     color("red")
+    //     translate(p)
+    //         circle(2);
+    // }
 }
 
 // 2D base of the leg, scaled for the leg angle
@@ -96,6 +121,10 @@ module leg_base_angled() {
 }
 
 module leg_base_rounded() {
+    // Concave corners
+    offset(-1)
+    offset(1)
+    // Convex corners
     offset(rounding)
     offset(-rounding)
         leg_base_angled();
@@ -279,12 +308,14 @@ module print_joint() {
         joint(90);
 }
 
-module cut_legs() {
-    translate([5, 0])
+module cut_leg_1() {
     leg_base_holed(hole_spread);
 
+}
+
+module cut_leg_2() {
+    rotate(180)
     mirror([1, 0])
-    translate([5, 0])
         leg_base_holed(- hole_spread);
 }
 
@@ -297,7 +328,17 @@ module cut_lock() {
 }
 
 
-// assembly();
-// print_joint();
-// cut_legs();
-cut_lock();
+_render()
+    assembly();
+
+_render("joint")
+    print_joint();
+
+_render("leg1")
+    cut_leg_1();
+
+_render("leg2")
+    cut_leg_2();
+
+_render("lock")
+    cut_lock();

@@ -13,7 +13,7 @@ use <../../lib/util.scad>
 /* [General] */
 
 // What to render
-RENDER = "all"; // ["all", "petal", "housing-top", "housing-bottom", "interface-shell", "interface-cage", "interface-top", "interface-bottom"]
+RENDER = "all"; // ["all", "petal", "housing-top", "housing-bottom", "interface", "interface-shell", "interface-cage", "interface-top", "interface-bottom"]
 
 RESOLUTION = 12; // [12, 24, 36, 48]
 
@@ -203,8 +203,8 @@ module interface(part) {
         shell_inner_gap = 0,
         ball_diameter = 3.5,
         ball_count = 12,
-        ball_margin = 0.15,
-        cage_margin = 0.4,
+        ball_margin = 0.2,
+        cage_margin = 0.5,
         // solid = true,
         RENDER = part
     ) {
@@ -249,6 +249,9 @@ module assembly() {
         petal();
         gear();
     }
+
+    _render("interface")
+        interface("all");
 
     _render("interface-shell")
         interface("bearing-outer");

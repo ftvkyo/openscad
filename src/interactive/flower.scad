@@ -32,7 +32,6 @@ petal_bezier = [0, 0.1, 0.4, 1];
 /* [Housing] */
 
 housing_thickness = 2.5;
-housing_diameter = 60;
 housing_petal_count = 12;
 housing_petal_cogs = 12; // [12 : 3 : 36]
 
@@ -42,6 +41,11 @@ housing_petal_cogs = 12; // [12 : 3 : 36]
 $fn = RESOLUTION;
 INF = 10 ^ 3;
 E = 0.01;
+
+housing_cog_width = petal_thickness * PI / housing_petal_cogs;
+housing_cogs_per_petal = ceil(petal_thickness / housing_cog_width);
+housing_cogs = housing_cogs_per_petal * housing_petal_count;
+housing_diameter = housing_cog_width * housing_cogs / PI;
 
 
 /* ========= *

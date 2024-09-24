@@ -12,7 +12,7 @@ use <../../lib/util.scad>
 /* [General] */
 
 // What to render
-RENDER = "all"; // ["all", "petal", "housing"]
+RENDER = "all"; // ["all", "housing-cut", "petal", "housing"]
 
 RESOLUTION = 12; // [12, 24, 36, 48]
 
@@ -46,6 +46,13 @@ housing_cog_width = petal_thickness * PI / housing_petal_cogs;
 housing_cogs_per_petal = ceil(petal_thickness / housing_cog_width);
 housing_cogs = housing_cogs_per_petal * housing_petal_count;
 housing_diameter = housing_cog_width * housing_cogs / PI;
+
+connection_extent_factor = 1/2;
+connection_extent = housing_diameter / 2 * connection_extent_factor;
+connection_groove_width = 2;
+connection_groove_depth = 3;
+connection_r1 = petal_thickness / 2;
+connection_r2 = petal_thickness / 2 * (1 - connection_extent_factor);
 
 
 /* ========= *
@@ -85,14 +92,13 @@ module petal() {
 }
 
 module gear() {
-    connection_extent_factor = 1/2;
-    connection_extent = housing_diameter / 2 * connection_extent_factor;
-
-    connection_groove_width = 2;
-    connection_groove_depth = 3;
-
-    connection_r1 = petal_thickness / 2;
-    connection_r2 = petal_thickness / 2 * (1 - connection_extent_factor);
+    module connection() {
+        rotate_extrude(convexity = 10, $fn = housing_petal_cogs)
+        translate([(connection_r1 + connection_r2) / 2, connection_extent / 2])
+        rotate(atan(connection_extent / (connection_r2 - connection_r1)))
+        scale([connection_groove_width, connection_groove_depth])
+            circle(1, $fn = 4);
+    }
 
     rotate([180, 0, 0])
     difference() {
@@ -103,20 +109,60 @@ module gear() {
         rotate(angle)
             circle(connection_r1, $fn = 3);
 
-        rotate_extrude(convexity = 10, $fn = housing_petal_cogs)
-        translate([(connection_r1 + connection_r2) / 2, connection_extent / 2])
-        rotate(atan(connection_extent / (connection_r2 - connection_r1)))
-        scale([connection_groove_width, connection_groove_depth])
-            circle(1, $fn = 4);
+        connection();
     }
 }
 
 module housing() {
-    translate([0, 0, petal_thickness + housing_thickness] / 2)
-        cylinder(housing_thickness, r = housing_diameter / 2, center = true);
+    module profile() {
+        polygon([
+            [0, petal_thickness / 4],
+            [0, petal_thickness / 2 + housing_thickness],
+            [housing_diameter / 2, petal_thickness / 2 + housing_thickness],
+            [housing_diameter / 2, petal_thickness / 2],
+            [housing_diameter / 4, petal_thickness / 4],
+        ]);
 
-    translate([0, 0, - petal_thickness - housing_thickness] / 2)
-        cylinder(housing_thickness, r = housing_diameter / 2, center = true);
+        translate([
+            housing_diameter * 3/8,
+            petal_thickness * 3/8,
+        ])
+        rotate(atan((connection_r1 - connection_r2) / connection_extent))
+        scale([connection_groove_width, connection_groove_depth])
+            circle(1, $fn = 4);
+    }
+
+    module cog() {
+        difference() {
+            angle = atan(housing_diameter / petal_thickness);
+            length = housing_diameter / 2 / sin(angle);
+
+            rotate([180, angle, 0])
+            translate([0, 0, - length])
+            linear_extrude(length, scale = 0)
+                circle(housing_cog_width / 2, $fn = 3);
+
+            cylinder(petal_thickness, r = housing_diameter / 4, center = true);
+        }
+    }
+
+    module cogs() {
+        for (a = [360 / housing_cogs : 360 / housing_cogs : 360])
+        rotate([0, 0, 360 / housing_cogs / 2 + a])
+            cog();
+    }
+
+    rotate_extrude() {
+        profile();
+
+        mirror([0, 1])
+            profile();
+    }
+
+    cogs();
+
+    mirror([0, 0, 1])
+        cogs();
 }
 
 /* ======== *
@@ -124,17 +170,27 @@ module housing() {
  * ======== */
 
 module assembly() {
-    _render() {
-        %housing();
+    module all() {
+        color("#FF000044")
+            housing();
 
         for (angle = [360 / housing_petal_count : 360 / housing_petal_count : 360])
         rotate([0, 0, angle])
         translate([housing_diameter / 2, 0, 0])
-        // rotate([$t * 4 * 360, 0, 0])
         rotate([0, 90, 0]) {
             petal();
             gear();
         }
+    }
+
+    _render() {
+        all();
+    }
+
+    _render("housing-cut") {
+        projection(cut = true)
+        rotate([90, 0, 0])
+            housing();
     }
 
     _render("housing")

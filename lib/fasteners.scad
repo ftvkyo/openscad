@@ -42,11 +42,11 @@ module heat_insert(
 }
 
 
-module heat_insert_M2(hole = false, through = false) {
+module heat_insert_M2(hole = false) {
     heat_insert(
         insert_l = 3,
         insert_d = hole ? 3.2 : 3.5,
         screw_l = undef,
-        screw_d = hole && through ? 2 : undef
+        screw_d = hole ? 2 : undef
     );
 }

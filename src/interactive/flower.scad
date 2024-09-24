@@ -1,4 +1,5 @@
 use <../../lib/ops.scad>
+use <../../lib/parts.scad>
 use <../../lib/maths.scad>
 use <../../lib/points.scad>
 use <../../lib/fasteners.scad>
@@ -12,7 +13,7 @@ use <../../lib/util.scad>
 /* [General] */
 
 // What to render
-RENDER = "all"; // ["all", "housing-cut", "petal", "housing"]
+RENDER = "all"; // ["all", "petal", "housing-top", "housing-bottom", "interface-shell", "interface-cage", "interface-top", "interface-bottom"]
 
 RESOLUTION = 12; // [12, 24, 36, 48]
 
@@ -53,6 +54,8 @@ connection_groove_width = 2;
 connection_groove_depth = 3;
 connection_r1 = petal_thickness / 2;
 connection_r2 = petal_thickness / 2 * (1 - connection_extent_factor);
+
+interface_joiner_height = 4;
 
 
 /* ========= *
@@ -116,11 +119,12 @@ module gear() {
 module housing() {
     module profile() {
         polygon([
-            [0, petal_thickness / 4],
-            [0, petal_thickness / 2 + housing_thickness],
+            [housing_diameter * 7/32, petal_thickness / 2],
+            [housing_diameter * 7/32, petal_thickness / 2 + housing_thickness],
             [housing_diameter / 2, petal_thickness / 2 + housing_thickness],
             [housing_diameter / 2, petal_thickness / 2],
             [housing_diameter / 4, petal_thickness / 4],
+            [housing_diameter / 4, petal_thickness / 2],
         ]);
 
         translate([
@@ -152,17 +156,61 @@ module housing() {
             cog();
     }
 
-    rotate_extrude() {
+    cogs();
+    rotate_extrude()
         profile();
+}
 
-        mirror([0, 1])
-            profile();
+module housing_top() {
+    difference() {
+        housing();
+        cylinder(petal_thickness * 33/32, r = housing_diameter * 9/32, center = true);
     }
 
-    cogs();
+    translate([0, 0, interface_joiner_height])
+    difference() {
+        h = petal_thickness / 2 + housing_thickness - interface_joiner_height;
 
+        union() {
+            cylinder(h, r = housing_diameter / 8);
+
+            for (a = [0, 60, 120, 180, 240, 300]) {
+                h = housing_thickness - petal_thickness / 32;
+
+                rotate([90, 0, a])
+                translate([0, petal_thickness / 2 - housing_thickness, housing_diameter / 12 + housing_diameter / 8])
+                    cube([h, h, housing_diameter / 4], center = true);
+            }
+        }
+
+        translate([0, 0, - E])
+            cylinder(h + E * 2, r = housing_diameter / 12);
+    }
+}
+
+module housing_bottom() {
     mirror([0, 0, 1])
-        cogs();
+        housing();
+}
+
+module interface(part) {
+    bearing(
+        shell_height = petal_thickness,
+        shell_outer_diameter = housing_diameter / 2,
+        shell_inner_diameter = housing_diameter / 4,
+        shell_inner_joiner_count = 3,
+        shell_inner_joiner_height = interface_joiner_height,
+        shell_inner_gap = 0,
+        ball_diameter = 3.5,
+        ball_count = 12,
+        ball_margin = 0.15,
+        cage_margin = 0.4,
+        // solid = true,
+        RENDER = part
+    ) {
+        translate([0, 0, - 2]) screw_M2x6(hole = true);
+        heat_insert_M2(hole = true);
+    }
 }
 
 /* ======== *
@@ -171,8 +219,12 @@ module housing() {
 
 module assembly() {
     module all() {
-        color("#FF000044")
-            housing();
+        color("#FF000044") {
+            housing_top();
+            housing_bottom();
+        }
+
+        interface("all");
 
         for (angle = [360 / housing_petal_count : 360 / housing_petal_count : 360])
         rotate([0, 0, angle])
@@ -187,19 +239,28 @@ module assembly() {
         all();
     }
 
-    _render("housing-cut") {
-        projection(cut = true)
-        rotate([90, 0, 0])
-            housing();
-    }
+    _render("housing-top")
+        housing_top();
 
-    _render("housing")
-        housing();
+    _render("housing-bottom")
+        housing_bottom();
 
     _render("petal") {
         petal();
         gear();
     }
+
+    _render("interface-shell")
+        interface("bearing-outer");
+
+    _render("interface-cage")
+        interface("bearing-cage");
+
+    _render("interface-top")
+        interface("bearing-inner-top");
+
+    _render("interface-bottom")
+        interface("bearing-inner-bottom");
 }
 
 assembly();

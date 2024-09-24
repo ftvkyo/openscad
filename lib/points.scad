@@ -64,7 +64,7 @@ function pts_rotate3(s, r) =
     ];
 
 
-module pts_extrude(slices, loop = true) {
+module pts_extrude(slices, loop = true, quads = true) {
     /* Validate the data */
 
     // Check that 'slices' is a list of slices
@@ -100,28 +100,46 @@ module pts_extrude(slices, loop = true) {
     // Define all the faces
     faces = [ for (slice = [0 : _last_slice]) each [
         // For each slice, define rectangular faces that connect it to the next slice
-        for (i = [0 : _num_points - 1]) [
-            // Two points on the current slice
-            (slice * _num_points) + i,
-            (slice * _num_points) + (i + 1) % _num_points,
-            // Two points on the next slice (possibly zeroth)
-            ((slice + 1) % _num_slices * _num_points) + (i + 1) % _num_points,
-            ((slice + 1) % _num_slices * _num_points) + i,
-        ]
+        if (quads)
+            for (i = [0 : _num_points - 1])[
+                // Two points on the current slice
+                (slice * _num_points) + i,
+                (slice * _num_points) + (i + 1) % _num_points,
+                    // Two points on the next slice (possibly zeroth)
+                ((slice + 1) % _num_slices * _num_points) + (i + 1) % _num_points,
+                ((slice + 1) % _num_slices * _num_points) + i,
+            ]
+        else
+            for (i = [0 : _num_points - 1]) each [
+                [
+                    // Two points on the current slice
+                    (slice * _num_points) + i,
+                    (slice * _num_points) + (i + 1) % _num_points,
+                    // One point on the next slice (possibly zeroth)
+                    ((slice + 1) % _num_slices * _num_points) + (i + 1) % _num_points,
+                ],
+                [
+                    // One point on the current slice
+                    (slice * _num_points) + i,
+                    // Two points on the next slice (possibly zeroth)
+                    ((slice + 1) % _num_slices * _num_points) + (i + 1) % _num_points,
+                    ((slice + 1) % _num_slices * _num_points) + i,
+                ]
+            ]
     ]];
 
     /* Render */
 
     if (loop) {
-        polyhedron(points, faces);
+        polyhedron(points, faces, convexity = 10);
     } else {
         // Add closing faces
 
-        face_end_1 = [ for (i = [0 : _num_points - 1]) i ];
+        face_end_1 = [ for (i = [1 : _num_points]) _num_points - i ];
         face_end_2 = [ for (i = [0 : _num_points - 1]) i + (_num_slices - 1) * _num_points];
 
         faces = [ for (fs = [[face_end_1], faces, [face_end_2]]) each fs];
 
-        polyhedron(points, faces);
+        polyhedron(points, faces, convexity = 10);
     }
 }

@@ -26,6 +26,12 @@ function pts_translate3(slice, t) =
     [ for (point = slice) point + t ];
 
 
+function pts_scale3(slice, s) =
+    assert(_assert_slice(slice))
+    assert(_assert_vec3(s))
+    [ for (p = slice) [p.x * s.x, p.y * s.y, p.z * s.z] ];
+
+
 function pts_inflate(flat) =
     assert(_assert_flat(flat))
     [ for (point = flat) [point.x, point.y, 0] ];

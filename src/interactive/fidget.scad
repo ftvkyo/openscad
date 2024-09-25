@@ -41,6 +41,7 @@ module fidget() {
         ball_count = 12,
         ball_margin = 0.2,
         cage_margin = 0.5,
+        cage_ball_margin = 0.3,
         RENDER = RENDER
     ) {
         translate([0, 0, - 2]) screw_M2x6(hole = true);

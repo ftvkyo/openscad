@@ -20,6 +20,7 @@ module bearing(
     ball_diameter,
     ball_margin,
     cage_margin,
+    cage_ball_margin,
     // Whether to make the middle solid
     solid = false,
     // What to display
@@ -48,7 +49,7 @@ module bearing(
     // Radius of the crossection of the torus part of the cage
     cage_r = ball_diameter / 3;
     // Space allocated for a ball in the cage
-    cage_ball_r = ball_diameter / 2 + ball_margin;
+    cage_ball_r = ball_diameter / 2 + (is_undef(cage_ball_margin) ? ball_margin : cage_ball_margin);
     // Width of the structural flat ring part of the cage
     cage_w = gap_inner_w - cage_margin * 2;
 

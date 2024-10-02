@@ -82,7 +82,7 @@ module fidget() {
             sphere(diameter / 2 + tooth_h, $fn = 48);
 
         for (tooth = [0 : tooth_count - 1])
-        rotate([0, 0, tooth / (tooth_count - 1/2) * 360]) {
+        rotate([0, 0, tooth / tooth_count * 360]) {
             linear_extrude(height / 2 - E, twist = tooth_twist / 2)
                 tooth_profile();
 

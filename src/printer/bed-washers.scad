@@ -8,8 +8,8 @@ E = 0.01;
 module washer(height, mark) {
     fn = is_undef(mark) ? 36 : mark;
 
-    d_inner = 3.75;
-    d_outer = 8;
+    d_inner = 3.9;
+    d_outer = 12;
 
     difference() {
         cylinder(height, r = d_outer / 2, $fn = fn);
@@ -21,7 +21,7 @@ module washer(height, mark) {
 
 
 module set_washers() {
-    arrange_row([10, 0, 0]) {
+    arrange_row([16, 0, 0]) {
         washer(L * 5, 5);
         washer(L * 6, 6);
         washer(L * 7, 7);
@@ -32,5 +32,5 @@ module set_washers() {
 }
 
 
-repeat_row([0, 10, 0], 4)
+repeat_row([0, 16, 0], 4)
     set_washers();

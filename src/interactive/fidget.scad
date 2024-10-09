@@ -49,7 +49,7 @@ module fidget() {
             cage_margin = 0.5,
             cage_ball_margin = 0.3,
             solid = true,
-            RENDER = RENDER
+            PART = RENDER
         ) {
             translate([0, 0, - 2]) screw_M2x6(hole = true);
             heat_insert_M2(hole = true);

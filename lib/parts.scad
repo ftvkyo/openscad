@@ -24,12 +24,14 @@ module bearing(
     // Whether to make the middle solid
     solid = false,
     // What to display
-    RENDER,
-    fn_debug = 12,
+    PART,
+    // Whether to render the debug parts
+    DEBUG = true,
     fn_rotate_extrude = 72,
+    fn_debug = 12
 ) {
     module _render(r) {
-        if (RENDER == "all" || RENDER == r)
+        if (PART == "all" || PART == r)
             children();
     }
 
@@ -44,7 +46,7 @@ module bearing(
     // Gap connecting the ball grooves together
     gap_inner_w = gap_ball_r;
     // Gap connecting the ball grooves to the outside
-    gap_outer_w = gap_ball_r;
+    gap_outer_w = gap_ball_r / 2;
 
     // Radius of the crossection of the torus part of the cage
     cage_r = ball_diameter / 3;
@@ -239,9 +241,11 @@ module bearing(
                 }
             }
 
+            cage_ring_h = (shell_height - shell_inner_gap) / 5;
+
             // Ring that reinforces the torus
-            translate([diameter / 2 - gap_ball_r + gap_inner_w / 2, shell_height * 3 / 20])
-                square([cage_w, shell_height / 5], center = true);
+            translate([diameter / 2 - gap_ball_r + gap_inner_w / 2, shell_inner_gap / 2 + shell_height * 3/20])
+                square([cage_w, cage_ring_h], center = true);
         }
     }
 
@@ -256,15 +260,15 @@ module bearing(
         }
     }
 
-    _render()
-    translate([0, 0, shell_height / 4])
-    repeat_balls()
-        ball();
+    if (DEBUG) {
+        %translate([0, 0, shell_height / 4])
+        repeat_balls()
+            ball();
 
-    _render()
-    translate([0, 0, - shell_height / 4])
-    repeat_balls()
-        ball();
+        %translate([0, 0, - shell_height / 4])
+        repeat_balls()
+            ball();
+    }
 
     _render("bearing-outer")
     color("green")

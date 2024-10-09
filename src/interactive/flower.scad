@@ -206,7 +206,7 @@ module interface(part) {
         ball_margin = 0.2,
         cage_margin = 0.5,
         // solid = true,
-        RENDER = part
+        PART = part
     ) {
         translate([0, 0, - 2]) screw_M2x6(hole = true);
         heat_insert_M2(hole = true);

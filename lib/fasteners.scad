@@ -16,9 +16,9 @@ module screw(
 }
 
 
-module screw_M2x6(hole = false) {
+module screw_M2x6(hole = false, hole_l = 6) {
     screw(
-        screw_l = hole ? 6 : 5.5,
+        screw_l = hole ? hole_l : 5.5,
         screw_d = hole ? 2 : 1.75,
         cap_l = hole ? INF : 1.75,
         cap_d = hole ? 4 : 3.5

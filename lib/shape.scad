@@ -3,8 +3,6 @@ use <points.scad>
 
 
 module capsule(points, radius, caps = true) {
-    $fn = 48;
-
     assert(is_list(points) && len(points) == 2, "'points' must be a list with 2 elements");
 
     let (a = points[0], b = points[1]) {

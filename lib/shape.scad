@@ -1,4 +1,5 @@
 use <ops.scad>
+use <points.scad>
 
 
 module capsule(points, radius, caps = true) {

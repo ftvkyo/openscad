@@ -1,136 +1,112 @@
-// Player card organiser
+// Player resources organiser (tray)
 
-thickness = 1;
+
+/* [Tray properties] */
+
+padding = 5;
+height = 5;
+thickness = 2;
+section_y = 30;
+
+/* [Counter properties] */
 
 counter_side = 8.5;
 counter_gap = 1;
-counter_area = counter_side + counter_gap;
+
+
+module __hidden__() {}
 
 $fn = 36;
 
-/* Generic */
 
-module area(w, h, x, y) {
-    translate([x, y])
-    square([w, h]);
+// Section in the middle with the counters
+counter_cols = 6;
+counter_rows = 5;
+counter_area_x = (counter_side + counter_gap) * counter_cols - counter_gap;
+counter_area_y = (counter_side + counter_gap) * counter_rows + counter_gap;
+
+// How many a single vertical section repeats
+tray_cols = 3;
+
+// Total tray size
+tray_x = padding + (counter_area_x + padding) * tray_cols;
+tray_y = padding + (counter_area_y + padding) + (section_y + padding) * 2;
+
+
+/* ======= *
+ * Generic *
+ * ======= */
+
+module area(x, y) {
+    offset(padding)
+    offset(- padding)
+    square([x, y]);
 }
 
-module slot(x, y) {
-    translate([x, y])
+module slot(col, row) {
+    translate([col * (counter_side + counter_gap), row * (counter_side + counter_gap)])
     offset(1/2)
     offset(-1/2)
     square(counter_side);
 }
 
-module counter_large(x, y) {
-    module slot_i(i) {
-        if (i < 0) {
-            slot(x + counter_area * (i + 6), y + counter_side * 2 + counter_gap);
-        } else if (i < 6) {
-            slot(x + counter_area * i, y + counter_side);
-        } else {
-            slot(x + counter_area * (i - 5), y - counter_gap);
-        }
-    }
-
-    for (i = [-5 : 10])
-    slot_i(i);
+module counter_large() {
+    for (col = [0 : 5], row = [0 : 2])
+    slot(col, row);
 }
 
-module counter_small(x, y) {
-    module slot_i(i) {
-        if (i < 6) {
-            slot(x + counter_area * i, y + counter_side + counter_gap / 2);
-        } else {
-            slot(x + counter_area * (i - 5), y - counter_gap / 2);
-        }
-    }
-
-    for (i = [0 : 10])
-    slot_i(i);
+module counter_small() {
+    for (col = [0 : 5], row = [0 : 1])
+    slot(col, row);
 }
 
-/* Parts */
+/* ===== *
+ * Parts *
+ * ===== */
 
-module insert() {
-    square([221, 161]);
+module base(x, y) {
+    translate([- padding, - padding])
+    offset(padding * 2)
+    offset(- padding * 2)
+    square([x, y]);
 }
-
-module area_credits() {
-    area(w = 84, h = 46, x = 8, y = 107);
-}
-
-module area_steel() {
-    area(w = 58, h = 46, x = 94, y = 107);
-}
-
-module area_titanium() {
-    area(w = 58, h = 46, x = 154, y = 107);
-}
-
-module area_plants() {
-    area(w = 71, h = 38, x = 8, y = 9);
-}
-
-module area_energy() {
-    area(w = 61, h = 38, x = 81, y = 9);
-}
-
-module area_heat() {
-    area(w = 68, h = 38, x = 144, y = 9);
-}
-
-module counter_credits() {
-    counter_large(x = 29, y = 77);
-}
-
-module counter_steel() {
-    counter_small(x = 95, y = 85);
-}
-
-module counter_titanium() {
-    counter_small(x = 155, y = 85);
-}
-
-module counter_plants() {
-    counter_small(x = 16, y = 51);
-}
-
-module counter_energy() {
-    counter_small(x = 84, y = 51);
-}
-
-module counter_heat() {
-    counter_small(x = 149, y = 51);
-}
-
-/* Assembly */
 
 module profile() {
     difference() {
-        offset(-5)
-        offset(5)
-        difference() {
-            offset(10)
-            offset(-10)
-            insert();
+        base(tray_x, tray_y);
 
-            area_credits();
-            area_steel();
-            area_titanium();
-            area_plants();
-            area_energy();
-            area_heat();
+        // All areas
+
+        for (col = [0 : tray_cols - 1])
+        translate([(counter_area_x + padding) * col, 0]) {
+            area(counter_area_x, section_y);
+
+            translate([0, counter_area_y + section_y + padding * 2])
+            area(counter_area_x, section_y);
         }
 
-        counter_credits();
-        counter_steel();
-        counter_titanium();
-        counter_plants();
-        counter_energy();
-        counter_heat();
+        // Top counters
+
+        for (col = [1 : tray_cols - 1])
+        translate([(counter_area_x + padding) * col, counter_area_y + section_y + padding])
+        mirror([0, 1])
+        counter_small();
+
+        translate([0, counter_area_y + section_y + padding])
+        mirror([0, 1])
+        counter_large();
+
+        // Bottom counters
+
+        for (col = [0 : tray_cols - 1])
+        translate([(counter_area_x + padding) * col, section_y + padding])
+        counter_small();
     }
 }
 
+color("grey")
 linear_extrude(thickness)
+base(tray_x, tray_y);
+
+linear_extrude(height)
 profile();

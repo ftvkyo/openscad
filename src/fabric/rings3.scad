@@ -1,19 +1,25 @@
-ring_thickness = 5;
+ring_thickness = 8;
 ring_rounding = 1;
-ring_radius = 20;
+ring_radius = 25;
 
+antiring_thickness = 4;
+antiring_count = 24;
 
 module ring() {
     rotate_extrude($fn = 120)
-    translate([ring_radius, 0])
-    offset(ring_rounding, $fn = 24)
-    offset(- ring_rounding, $fn = 24)
-    circle(ring_thickness / 2, $fn = 6);
+    translate([ring_radius, 0]) {
+        offset(ring_rounding, $fn = 24)
+        offset(- ring_rounding, $fn = 24)
+        circle(ring_thickness / 2, $fn = 6);
+
+        intersection() {
+            circle(ring_thickness / 2, $fn = 6);
+
+            translate([0, - ring_radius / 8])
+            square(ring_radius / 4, center = true);
+        }
+    }
 }
-
-
-antiring_thickness = 3;
-antiring_count = 24;
 
 
 module antiring() {

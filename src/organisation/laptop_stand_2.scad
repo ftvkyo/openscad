@@ -4,7 +4,7 @@
 
 /* [Output] */
 
-RENDER = "all"; // ["all", "assembly folded", "joint", "leg1", "leg2"]
+RENDER = "all"; // ["all", "assembly folded", "joint", "joint cut", "leg1", "leg2"]
 
 
 /* [Parameters] */
@@ -37,6 +37,8 @@ hole_spread = 6;
 
 joint_h = 24;
 joint_cap_h = 4;
+
+joint_rounding = 2;
 
 
 /* [Hidden] */
@@ -177,21 +179,42 @@ module leg_pair(angle) {
 module joint_attachment() {
     joint_extent = leg_axis_extra_offset + leg_hole_offset + halfjoint_h / 2;
 
-    translate([joint_extent / 2, 0, 0])
-    difference() {
-        cube([joint_extent, leg_thickness, halfjoint_h], center = true);
+    module profile() {
+        intersection() {
+            union() {
+                translate([joint_extent / 2, leg_thickness * 3/2])
+                square([joint_extent, leg_thickness], center = true);
 
-        translate([joint_extent / 2 - halfjoint_h / 2, 0, 0])
-        rotate([90, 0, 0])
-            cylinder(leg_thickness + E, r = hole_r, center = true);
+                rotate(leg_angle)
+                translate([joint_extent / 4 + leg_thickness / 2 + NOZ, 0])
+                square([joint_extent / 2, leg_thickness], center = true);
+            }
+
+            translate([0, - leg_thickness])
+            square([joint_extent, leg_thickness * 3]);
+
+            rotate(leg_angle)
+            translate([joint_extent, - leg_thickness * 3/2])
+            square([joint_extent * 2, leg_thickness * 4], center = true);
+        }
     }
 
-    translate([leg_thickness / 2, - leg_thickness, 0])
-    difference() {
-        cube([leg_thickness, leg_thickness, halfjoint_h], center = true);
+    module attachment(rounding) {
+        minkowski() {
+            linear_extrude(halfjoint_h - rounding * 2, center = true)
+            offset(- rounding)
+            profile();
 
-        translate([-leg_thickness / 2, -leg_thickness / 2, 0])
-            cylinder(halfjoint_h + E, r = leg_thickness - E, center = true);
+            sphere(rounding);
+        }
+    }
+
+    difference() {
+        attachment(joint_rounding);
+
+        translate([joint_extent - halfjoint_h / 2, leg_thickness * 3/2, 0])
+        rotate([90, 0, 0])
+            cylinder(leg_thickness + E, r = hole_r, center = true);
     }
 }
 
@@ -227,13 +250,13 @@ module joint(angle) {
 
         // Top attachment
         rotate([0, 0, angle])
-        translate([0, leg_thickness * 1.5, (halfjoint_h + NOZ) / 2])
+        translate([0, 0, (halfjoint_h + NOZ) / 2])
             joint_attachment();
 
         // Bottom attachment
         mirror([0, 1, 0])
         rotate([0, 0, angle])
-        translate([0, leg_thickness * 1.5, - (halfjoint_h + NOZ) / 2])
+        translate([0, 0, - (halfjoint_h + NOZ) / 2])
             joint_attachment();
     }
 }
@@ -281,6 +304,11 @@ _render("assembly folded")
 
 _render("joint")
     print_joint();
+
+_render("joint cut")
+    projection(cut = true)
+    translate([0, 0, halfjoint_h / 2])
+    joint(180 - leg_angle);
 
 _render("leg1")
     cut_leg_1();

@@ -47,7 +47,7 @@ E = 0.01;
 
 halfjoint_h = (joint_h - NOZ) / 2;
 
-leg_axis_offset = leg_thickness * 3;
+leg_axis_extra_offset = leg_thickness * 2;
 
 
 /* ============ *
@@ -156,7 +156,7 @@ module leg_base_holed(hole_offset) {
 
 
 module leg(hole_offset) {
-    translate([leg_axis_offset, 0, 0])
+    translate([leg_axis_extra_offset + leg_thickness, 0, 0])
     rotate([90, 0, 0])
     linear_extrude(leg_thickness, center = true)
         leg_base_holed(hole_offset);
@@ -175,7 +175,7 @@ module leg_pair(angle) {
 
 
 module joint_attachment() {
-    joint_extent = leg_hole_offset + leg_axis_offset;
+    joint_extent = leg_axis_extra_offset + leg_hole_offset + halfjoint_h / 2;
 
     translate([joint_extent / 2, 0, 0])
     difference() {

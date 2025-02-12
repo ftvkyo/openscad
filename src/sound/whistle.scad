@@ -1,72 +1,92 @@
-d = 26;
 wall = 2;
-R = d / 2 + wall;
 
-cuff_h = 20;
-whistle_h = 30;
+tube_ir = 20.5 / 2;
+tube_or = 26 / 2;
+thing_or = tube_or + wall;
 
-E = 0.02;
+cuff = 15;
+tip = 20;
+
+E = 0.01;
+$fn = 72;
 
 
-module whistle() {
-    module shell() {
-        intersection() {
-            rotate([90, 0, 0])
-            linear_extrude(R * 2, center = true)
+module thing() {
+    module positive() {
+        module side_profile() {
             polygon([
-                [- R, 0],
-                [- R, cuff_h + whistle_h],
-                [- R + 10, cuff_h + whistle_h],
-                [- R + 10, cuff_h + whistle_h - 15],
-                [R, cuff_h],
-                [R, 0],
+                [- thing_or, -10],
+                [- thing_or, cuff],
+                [- thing_or + 5, cuff + 5],
+                [- thing_or + 5, cuff + tip],
+                [- thing_or + 10, cuff + tip],
+                [- thing_or + 10, cuff + 15],
+                [thing_or, cuff],
+                [thing_or, -10],
             ]);
+        }
 
-            cylinder(cuff_h + whistle_h, r = R);
+        intersection() {
+            cylinder(cuff + tip, r = thing_or);
+
+            rotate([90, 0, 0])
+            linear_extrude(thing_or * 2, center = true)
+            side_profile();
         }
     }
 
-    module inside() {
-        difference() {
-            intersection() {
-                rotate([90, 0, 0])
-                linear_extrude(R * 2, center = true)
-                polygon([
-                    [- R, - E],
-                    [- R, cuff_h + whistle_h],
-                    [- R + 8, cuff_h + whistle_h + E],
-                    [- R + 8, cuff_h + whistle_h - 15],
-                    [R, cuff_h - 4],
-                    [R, - E],
-                ]);
+    module negative() {
+        module side_profile() {
+            polygon([
+                [- thing_or + 4.5, -10],
+                [- thing_or + 4.5, cuff + 15],
+                [- thing_or + 10, cuff + 15],
+                [thing_or, cuff],
+                [thing_or, -10],
+            ]);
+        }
 
-                translate([0, 0, - E])
-                cylinder(cuff_h + whistle_h + E * 2, r = d / 2);
+        cylinder(cuff, r = tube_or);
+
+        off = 8.3;
+        w = 10;
+
+        difference() {
+            union() {
+                translate([-7.5, 0, 0])
+                cube([2, w, (cuff + tip) * 3], center = true);
+
+                intersection() {
+                    cylinder(cuff + tip + E * 2, r = tube_ir);
+
+                    rotate([90, 0, 0])
+                    linear_extrude(thing_or * 2, center = true)
+                    offset(- wall)
+                    side_profile();
+                }
             }
 
-            translate([- d / 2 - wall / 2, 0, cuff_h + whistle_h / 2 + 1])
-            rotate([0, 1, 0])
-            cube([5, d, whistle_h], center = true);
+            translate([-10.1, 0, cuff + off])
+            rotate([0, 5, 0])
+            cube([4, w * 2, 10], center = true);
         }
-    }
 
-    module wedge() {
-        a = 15;
-
-        cube([10, 10, 2], center = true);
-
-        translate([-1, 0, -8])
-        rotate([0, 90 + a, 0])
-        cube([16, 10, 5], center = true);
+        translate([-10.75, 0, cuff + off + 1.75])
+        rotate([0, 16, 0])
+        cube([4, w, 8], center = true);
     }
 
     difference() {
-        shell();
-        inside();
+        positive();
 
-        translate([-R, 0, cuff_h + whistle_h - 10])
-        wedge();
+        color("red")
+        translate([0, 0, -E])
+        negative();
     }
 }
 
-whistle();
+thing();
+
+// projection(cut = true)
+// rotate([90, 0, 0])
+// thing();

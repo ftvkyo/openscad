@@ -93,3 +93,17 @@ module spin3d(length, turns, steps, scal) {
             children();
     }
 }
+
+module rounden_xyz(r, $fn = 24) {
+    minkowski() {
+        children();
+        sphere(r);
+    }
+}
+
+module rounden_xy(r, $fn = 24) {
+    minkowski() {
+        children();
+        cylinder(r * 2, r = r, center = true);
+    }
+}

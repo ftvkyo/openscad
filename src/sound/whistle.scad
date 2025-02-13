@@ -11,20 +11,16 @@ W = 10;
 // Wall thickness
 wall = 1.5;
 
-// Rounding
-r = 1.5;
-
 inlet = 1.5;
 
 opening = 2;
 
 
-module __hidden__();
+module __hidden__() {};
 
 resonator_x_f = 3/4;
 
 wall_vec = [wall, wall, wall] * 2;
-r_vec = [r, r, r] * 2;
 
 l = L - wall * 2;
 w = W - wall * 2;
@@ -34,14 +30,14 @@ NOZ = 0.4;
 
 
 module base() {
-    rounden_xy(r)
-    cube([L, W, W] - r_vec, center = true);
+    rounden_xy(wall)
+    cube([L, W, W] - wall_vec, center = true);
 }
 
 module resonator() {
-    rounden_xy(r)
+    rounden_xy(wall / 2)
     translate([l * (1 - resonator_x_f) / 2, 0])
-    cube([l * resonator_x_f, w, w] - r_vec, center = true);
+    cube([l * resonator_x_f, w, w] - wall_vec / 2, center = true);
 }
 
 module inlet() {

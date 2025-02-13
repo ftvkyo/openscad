@@ -67,10 +67,10 @@ module outlet() {
     translate([- resonator_len / 2 + outlet, side / 2 - wall, 0]) {
         rotate([0, 0, cutter_a])
         translate([cutter_l / 2, cutter_h / 2, 0])
-        cube([cutter_l, cutter_h, side - wall], center = true);
+        cube([cutter_l, cutter_h, side - wall * 2], center = true);
 
         translate([-outlet / 2, side / 4, 0])
-        cube([outlet, side / 2 + E, side - wall], center = true);
+        cube([outlet, side / 2 + E, side - wall * 2], center = true);
     }
 }
 

@@ -1,7 +1,7 @@
 use <../../lib/util.scad>
 
-height = 13;
-wall = 2;
+height = 15;
+wall = 1.6;
 rounding = 3;
 strap = 25;
 
@@ -12,15 +12,50 @@ $fn = 48;
 
 
 module base() {
-    linear_extrude(height)
-    difference() {
-        offset(rounding + wall)
-        offset(- rounding - wall)
-        square(phone + [wall, wall] * 2, center = true);
+    module profile() {
+        difference() {
+            offset(rounding + wall)
+            offset(- rounding - wall)
+            square(phone + [wall, wall] * 2, center = true);
 
-        offset(rounding)
-        offset(-rounding)
-        square(phone, center = true);
+            offset(rounding)
+            offset(-rounding)
+            square(phone, center = true);
+        }
+    }
+
+    linear_extrude(height)
+    half2("x-")
+    profile();
+
+    linear_extrude(height / 2)
+    half2("x+")
+    profile();
+
+    a = 50;
+    o = 50;
+
+    intersection() {
+        translate([0, 0, height / 2])
+        half3("x+")
+        rotate([90, 0, 180])
+        translate([-o, 0, 0])
+        rotate_extrude(angle = a, $fn = 120)
+        translate([o, 0])
+        profile();
+
+        translate([0, 0, height * 3/4])
+        cube([10 ^ 3, phone.y + wall * 2, height / 2], center = true);
+    }
+}
+
+module button_cutout() {
+    r = 1;
+
+    translate([0, 0, height / 2])
+    minkowski() {
+        cube([phone.x - r * 2 + 1, r, height], center = true);
+        sphere(r);
     }
 }
 
@@ -65,20 +100,11 @@ module bracket_slider() {
     t = wall;
     g = 3;
 
-    module arc() {
-        translate([0, 0, t])
-        rotate([90, 0, 0])
-        rotate_extrude(angle = 90)
-        translate([height - w / 2 - t, 0])
-        square([w, t], center = true);
-
-        translate([height - w / 2 - t, - g / 2, t / 2])
-        cube([w, t + g, t], center = true);
-    }
-
     module bar() {
         cube([strap, t, w], center = true);
+    }
 
+    module connection() {
         translate([- strap / 2, - g - t / 2, 0])
         rotate([0, 0, 90])
         rotate_extrude(angle = 90)
@@ -88,15 +114,16 @@ module bracket_slider() {
 
     module slider() {
         translate([
-            - strap / 2 + phone.x / 2 - height - w / 2 + t / 2,
+            phone.x / 2 - strap / 2 - g - t - rounding,
             phone.y / 2 + wall + t / 2 + g,
-            0
+            w / 2
         ]) {
-            translate([strap / 2, 0, 0])
-            arc();
-
-            translate([0, 0, height - w / 2])
             bar();
+
+            connection();
+
+            mirror([1, 0, 0])
+            connection();
         }
     }
 
@@ -107,9 +134,14 @@ module bracket_slider() {
 }
 
 module assembly() {
-    base();
-    bracket_strap();
-    bracket_slider();
+    difference() {
+        union() {
+            base();
+            bracket_strap();
+            bracket_slider();
+        }
+        button_cutout();
+    }
 }
 
 assembly();

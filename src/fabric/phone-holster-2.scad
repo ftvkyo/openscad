@@ -31,6 +31,7 @@ module bracket_strap() {
     o = 100;
 
     module profile() {
+        half2("x-")
         difference() {
             offset(rounding + t)
             offset(- rounding - t)
@@ -38,6 +39,12 @@ module bracket_strap() {
 
             offset(rounding)
             offset(-rounding)
+            square([g, strap + rounding * 2], center = true);
+        }
+
+        half2("x+")
+        difference() {
+            square([t * 2 + g, strap + rounding * 2 + t * 2], center = true);
             square([g, strap + rounding * 2], center = true);
         }
     }
@@ -48,6 +55,9 @@ module bracket_strap() {
     rotate_extrude(angle = a, $fn = 360)
     translate([o, 0])
     profile();
+
+    translate([- phone.x / 2 - t / 2, - phone.y / 4 - t / 2, height / 2])
+    cube([t, phone.y / 2 + t, height], center = true);
 }
 
 module bracket_slider() {

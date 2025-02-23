@@ -4,7 +4,7 @@ use <../../lib/util.scad>
 
 HOLES = true;
 
-r = 50;
+r = 70;
 h = 20;
 rounden = 5;
 
@@ -14,24 +14,10 @@ module holes() {
     hd = 10;
 
     translate([0, 0, - 0.01])
-    arrange_hex(hd, 5)
+    arrange_hex(hd, 8)
     rotate([0, 0, 360 / 12])
     cylinder(h * 2, r = hr, $fn = 6);
 }
-
-// module bowl() {
-//     difference() {
-//         half3("z+")
-//         rounden_xyz(rounden, $fn = 72)
-//         translate([0, 0, - rounden])
-//         cylinder(h - rounden, r = r - rounden, $fn = 6);
-
-//         f = 2;
-
-//         translate([0, 0, r * f + 5])
-//         sphere(r * f, $fn = 180);
-//     }
-// }
 
 module bowl() {
     module cut_profile() {
@@ -40,8 +26,8 @@ module bowl() {
         o = 5;
 
         p0 = [0, o];
-        p1 = [20, o];
-        p2 = [r - 20, h];
+        p1 = [r / 2, o];
+        p2 = [r / 2, h];
         p3 = [r, h];
 
         bz = bezier3([p0, p1, p2, p3], STEPS);
@@ -50,18 +36,16 @@ module bowl() {
             [
                 [r * 2, h],
                 [r * 2, h * 2],
-                [-rounden, h * 2],
-                [-rounden, o],
+                [0, h * 2],
+                [0, o],
             ],
         ]) each i ];
 
-        offset(- rounden)
         polygon(pts);
     }
 
     module cut() {
-        rounden_xyz(rounden)
-        rotate_extrude($fn = 6)
+        rotate_extrude($fn = 60)
         cut_profile();
     }
 

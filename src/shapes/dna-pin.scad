@@ -1,4 +1,4 @@
-use <../lib/ops.scad>
+use <../../lib/ops.scad>
 
 
 E = 0.01;

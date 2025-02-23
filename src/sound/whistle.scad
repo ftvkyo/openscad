@@ -1,6 +1,6 @@
 use <../../lib/ops.scad>
 
-CUT = false;
+DISPLAY = "cut"; // ["cut", "whistle", "slider"]
 
 /* [General] */
 
@@ -76,7 +76,7 @@ module outlet() {
 
 module hole() {
     translate([- resonator_len / 2 - wall * 3/2, - side / 2 + wall * 3/2, 0])
-    cylinder(side + E, r = wall / 2, center = true, $fn = 24);
+    cylinder(side + E * 2, r = wall * 3/4, center = true, $fn = 24);
 }
 
 module info() {
@@ -117,10 +117,49 @@ module whistle() {
     info();
 }
 
+module slider() {
+    $fn = 48;
 
-if (CUT) {
-    projection(cut = true)
+    w = side - wall * 2 - NOZ;
+    l = resonator_len + 20;
+
+    module profile() {
+        offset(wall / 2)
+        offset(- wall)
+        offset(wall / 2 + E) {
+            square([wall, w], center = true);
+
+            translate([l / 2, 0, 0])
+            square([l, wall], center = true);
+        }
+    }
+
+    module hole() {
+        translate([l - w * 3/4, 0, 0])
+        rotate([90, 0, 0])
+        cylinder(h = wall * 2, r = w / 4, center = true);
+    }
+
+    // Only render the slider if open
+    if (open) {
+        difference() {
+            linear_extrude(w, center = true)
+            profile();
+
+            hole();
+        }
+    }
+}
+
+
+if (DISPLAY == "cut") {
+    projection(cut = true) {
+        whistle();
+        slider();
+    }
+} else if (DISPLAY == "whistle") {
     whistle();
-} else {
-    whistle();
+} else if (DISPLAY == "slider") {
+    assert(open, "Needs to be 'open'");
+    slider();
 }

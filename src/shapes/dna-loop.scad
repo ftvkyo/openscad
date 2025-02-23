@@ -1,5 +1,5 @@
-use <../lib/ops.scad>
-use <../lib/shape.scad>
+use <../../lib/ops.scad>
+use <../../lib/shape.scad>
 
 
 /* Parameters */

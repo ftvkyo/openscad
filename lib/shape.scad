@@ -140,3 +140,84 @@ module torus(
 
     pts_extrude(cs);
 }
+
+
+module double_helix(
+    radius_ring,
+    radius_twist,
+    thickness,
+    gap,
+    twists,
+    fn_profile = 36,
+    fn_loop = 180,
+) {
+    strand_base = pts_rotate3(
+        pts_inflate(pts_circle(thickness / 2, fn_profile)),
+        [90, 0, 0]
+    );
+
+    function trot(t) = twists * t * 360;
+
+    module strand(dx, dz) {
+        // The slice center will always be this far from the helix center
+        init_distance = sqrt(dx^2 + dz^2);
+        // Rotation of the init_distance to achieve dx and dz
+        init_angle = atan(dz / dx);
+
+        function slice_init(s, t) = pts_rotate3(
+            pts_translate3(
+                pts_rotate3(
+                    s,
+                    // Guesstimation to make the crossection more round
+                    [- atan(1 / twists) * twists / 2, 0, 0]
+                ),
+                [init_distance, 0, 0]
+            ),
+            [0, init_angle, 0]
+        );
+
+        function slice_transform(s, t) = pts_translate3(
+            pts_rotate3(
+                slice_init(s, t),
+                [0, trot(t), 0]
+            ),
+            [radius_ring, 0, 0]
+        );
+
+        strand_slices = [ for (t = [1 / fn_loop : 1 / fn_loop : 1])
+            pts_rotate3(
+                slice_transform(strand_base, t),
+                [0, 0, t * 360]
+            )
+        ];
+
+        pts_extrude(strand_slices);
+    }
+
+    strand(radius_twist, (gap + thickness) / 2);
+    strand(radius_twist, - (gap + thickness) / 2);
+}
+
+
+module double_helix_bridges(
+    radius_ring,
+    radius_twist,
+    thickness,
+    gap,
+    twists,
+    steps
+) {
+    $fn = 16;
+
+    module bridge() {
+        cylinder(gap, r = thickness / 2, center = true);
+    }
+
+    for (t = [1 / steps : 1 / steps : 1]) {
+        rotate([0, 0, t * 360])
+        translate([radius_ring, 0, 0])
+        rotate([0, twists * t * 360])
+        translate([radius_twist, 0, 0])
+            bridge();
+    }
+}

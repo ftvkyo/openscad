@@ -1,4 +1,4 @@
-use <../lib/ops.scad>
+use <../../lib/ops.scad>
 
 
 // Shapes
@@ -39,7 +39,7 @@ module pin() {
     translate([d / 2, 0, 0])
         profile_helix(g, r);
 
-    spin3d(l, t, 32)
+    spin3d(l, t, 32, 1)
     translate([d / 2, 0, 0])
         bridge(g, r / 4);
 }

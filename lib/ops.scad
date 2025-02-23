@@ -1,3 +1,5 @@
+use <maths.scad>
+
 module repeat_row(step, count) {
     assert(is_list(step) && 2 <= len(step) && len(step) <= 3);
     for (comp = step) assert(is_num(comp));

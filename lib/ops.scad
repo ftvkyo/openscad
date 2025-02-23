@@ -21,47 +21,33 @@ module arrange_row(step) {
 }
 
 
-module arrange_hex(d, e) {
-    h = d * sin(60);
-    r = d / 2;
+module arrange_hex(distance, extent) {
+    h = distance * sin(60);
 
-    cols = e;
-    rows = ceil((e + 1) / 2);
+    module row(count) {
+        for (i = [1 : 1 : count]) {
+            translate([distance * i, 0, 0])
+            children();
+        }
+    }
 
-    module repeat(row, col) {
+    module sector(extent) {
+        row(extent)
         children();
 
-        if (row < rows - 1 && col < cols - 1)
-        translate([
-            r / 2,
-            h / 2,
-            0
-        ])
-            children();
+        if (extent > 1)
+        translate([distance / 2, h, 0])
+        sector(extent - 1)
+        children();
     }
 
-    translate([
-        - cols / 2 * r + r / 2,
-        - rows / 2 * h + h / 2,
-        0,
-    ])
-    for (
-        col = [0 : cols - 1],
-        row = [0 : rows - 1]
-    )
-    translate([
-        col * r,
-        row * h,
-        0
-    ]) {
-        repeat(row, col)
-            children();
-    }
+    for (a = [0, 60, 120, 180, 240, 300, 360])
+    rotate([0, 0, a])
+    sector(extent - 1)
+    children();
 
-        // if (abs(col) + abs(row) * 2 <= e) {
-        //     translate([col * d / 2, row * h, 0])
-        //         children();
-        // }
+    if (extent > 0)
+    children();
 }
 
 

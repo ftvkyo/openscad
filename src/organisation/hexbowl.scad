@@ -2,20 +2,18 @@ use <../../lib/ops.scad>
 
 HOLES = true;
 
-r = 30;
+r = 50;
 h = 20;
 rounden = 5;
 
 
 module holes() {
-    translate([0, 0, - 0.01])
-    intersection() {
-        arrange_hex(16, 9)
-        rotate([0, 0, 360 / 12])
-        cylinder(h, r = 4, $fn = 6);
+    hr = 5;
 
-        cylinder(h, r = r - rounden, $fn = 6);
-    }
+    translate([0, 0, - 0.01])
+    arrange_hex(hr * 2, 5)
+    rotate([0, 0, 360 / 12])
+    cylinder(h * 2, r = hr, $fn = 6);
 }
 
 module bowl() {
@@ -31,7 +29,6 @@ module bowl() {
         sphere(r * f, $fn = 180);
     }
 }
-
 
 difference() {
     bowl();

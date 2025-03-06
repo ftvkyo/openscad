@@ -4,7 +4,8 @@ module debug_point(p, c = "black") {
         circle(0.5);
 }
 
-module debug_points(pts, trans, rot = [0, 0, 0], c = "red") {
+module debug_points(pts, trans = function (x) x, rot = [0, 0, 0], c = "red") {
+    $fn = 4;
     r = 1.5;
 
     color(c)

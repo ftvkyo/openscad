@@ -1,4 +1,3 @@
-use <../../lib/ops.scad>
 use <../../lib/shape.scad>
 
 

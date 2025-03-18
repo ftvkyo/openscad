@@ -12,6 +12,8 @@ bridges = 72;
 thickness_helix = 3;
 thickness_bridge = 1;
 
+DEBUG = false;
+
 
 /* Render */
 
@@ -32,3 +34,11 @@ double_helix_bridges(
     twists = twists,
     steps = bridges
 );
+
+
+if (DEBUG) {
+    %color("#AAAAAA")
+    rotate_extrude($fn = 72)
+    translate([radius_ring, 0])
+    circle(thickness / 2, $fn = 24);
+}

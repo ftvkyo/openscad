@@ -1,14 +1,14 @@
 use <../../lib/util.scad>
 
-PART = 1; // [1, 2, 3, 4, 5]
+PART = 0; // [0, 1, 2, 3, 4, 5]
 
 plate_t = 1.25;
 plate_pin_h = 1.25;
 
-wall_w = 2;
+wall_w = 5;
 wall_gap = 0.1;
-wall_overlap_w = 1;
-wall_top_h = 1;
+wall_overlap_w = 2;
+wall_top_h = 2;
 wall_bottom_h = 2;
 
 
@@ -97,8 +97,9 @@ module wall_bottom() {
     wall();
 }
 
-
-if (PART == 1) {
+if (PART == 0) {
+    wall();
+} else if (PART == 1) {
     half3("x+")
     wall_top();
 } else if (PART == 2) {

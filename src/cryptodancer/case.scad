@@ -1,5 +1,7 @@
 use <../../lib/util.scad>
 
+PART = 1; // [1, 2, 3, 4, 5]
+
 plate_t = 1.25;
 plate_pin_h = 1.25;
 
@@ -84,9 +86,41 @@ module wall() {
 }
 
 
-half3("x-")
-half3("y+")
-translate([0, 30, 0])
-wall();
+module wall_top() {
+    rotate([0, 180, 0])
+    half3()
+    wall();
+}
+
+module wall_bottom() {
+    half3("z-")
+    wall();
+}
+
+
+if (PART == 1) {
+    half3("x+")
+    wall_top();
+} else if (PART == 2) {
+    half3("x-")
+    wall_top();
+} else if (PART == 3) {
+    half3("y-")
+    translate([0, 30, 0])
+    wall_bottom();
+} else if (PART == 4) {
+    half3("x+")
+    half3("y+")
+    translate([0, 30, 0])
+    wall_bottom();
+} else if (PART == 5) {
+    half3("x-")
+    half3("y+")
+    translate([0, 30, 0])
+    wall_bottom();
+} else {
+    assert(false);
+}
+
 
 // %plate();

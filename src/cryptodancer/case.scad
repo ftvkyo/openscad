@@ -1,6 +1,6 @@
 use <../../lib/util.scad>
 
-PART = 0; // [0, 1, 2, 3, 4, 5]
+PART = 0; // [0, 1, 2, 3, 4, 5, 6]
 
 plate_t = 1.25;
 plate_pin_h = 1.25;
@@ -110,15 +110,31 @@ if (PART == 0) {
     translate([0, 30, 0])
     wall_bottom();
 } else if (PART == 4) {
-    half3("x+")
-    half3("y+")
-    translate([0, 30, 0])
-    wall_bottom();
+    difference() {
+        half3("x+")
+        half3("y+")
+        translate([0, 30, 0])
+        wall_bottom();
+
+        cube([60, 300, 10], center = true);
+    }
 } else if (PART == 5) {
-    half3("x-")
-    half3("y+")
-    translate([0, 30, 0])
-    wall_bottom();
+    difference() {
+        half3("x-")
+        half3("y+")
+        translate([0, 30, 0])
+        wall_bottom();
+
+        cube([60, 300, 10], center = true);
+    }
+} else if (PART == 6) {
+    intersection() {
+        half3("y+")
+        translate([0, 30, 0])
+        wall_bottom();
+
+        cube([60, 300, 10], center = true);
+    }
 } else {
     assert(false);
 }

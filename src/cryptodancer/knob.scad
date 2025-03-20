@@ -1,11 +1,11 @@
 ec11_base = [11.6, 12.1, 4.5];
-ec11_base_cyl_r = 3.5;
+ec11_base_cyl_r = 3.8;
 ec11_base_cyl_h = 7;
 
 ec11_spin_h = 12.5;
-ec11_spin_r = 3;
+ec11_spin_r = 3.25;
 ec11_spin_cut_h = 10;
-ec11_spin_cut_o = 1.3;
+ec11_spin_cut_o = 1.5;
 
 knob_r = 8;
 knob_h = 25;

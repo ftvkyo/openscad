@@ -37,7 +37,7 @@ module knob() {
         polygon([
             [0, knob_chamfer],
             [knob_chamfer, 0],
-            [0, 0],
+            [0, -knob_chamfer],
         ]);
     }
 
@@ -50,8 +50,9 @@ module knob() {
         }
     }
 
+    translate([0, 0, knob_chamfer])
     minkowski() {
-        linear_extrude(knob_h - knob_chamfer)
+        linear_extrude(knob_h - knob_chamfer * 2)
         offset(- knob_chamfer / 2)
         profile();
 
@@ -59,7 +60,7 @@ module knob() {
     }
 
     translate([0, 0, 2])
-    cylinder(h = 1, r1 = knob_r + 1, r2 = knob_r, $fn = 48);
+    cylinder(h = 1, r1 = knob_r + 1, r2 = knob_r + E, $fn = 48);
     cylinder(h = 2, r = knob_r + 1, $fn = 48);
 }
 

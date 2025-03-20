@@ -69,7 +69,7 @@ module plate() {
 
 
 module alignment(hole = false) {
-    r = hole ? 1.05 : 1;
+    r = hole ? 1.1 : 1;
 
     color("red")
     translate([0, 0, wall_h_offset])
@@ -190,12 +190,12 @@ module wall_bottom() {
         }
     }
 
-    translate([-60, -30, 0])
+    translate([-60, -20, 0])
     rotate([0, 0, -10])
     half3("x+")
     base();
 
-    translate([60, 30, 0])
+    translate([60, 20, 0])
     rotate([0, 0, 10])
     half3("x-")
     base();

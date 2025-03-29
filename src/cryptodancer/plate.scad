@@ -30,44 +30,46 @@ E = 0.01;
 
 alignment_pins = [
     [10, -71],
-    [30, -56.5],
-    [50, -47],
-    [70, -41.5],
+    [30, -56.4],
+    [50, -46.8],
+    [70, -41.4],
     [90, -36],
-    [110, -31],
-    [130, -25.5],
+    [110, -30.7],
+    [130, -25.4],
     [150, 0],
 
     [10, 51],
-    [30, 57.5],
+    [30, 57.8],
     [50, 64.5],
-    [70, 68.5],
-    [90, 70],
-    [110, 71],
+    [70, 68.4],
+    [90, 69.6],
+    [110, 70.9],
     [130, 62],
 ];
 
 
 module alignment(holes = false) {
-    r = 1;
-
-    module pins(r, d) {
+    module pins(r1, r2, d) {
         for(p = alignment_pins) {
             translate([p.x, p.y, 0])
-            cylinder(d, r1 = r, r2 = r / 2, $fn = 24);
+            cylinder(d, r1 = r1, r2 = r2, $fn = 24);
 
             translate([-p.x, p.y, 0])
-            cylinder(d, r1 = r, r2 = r / 2, $fn = 24);
+            cylinder(d, r1 = r1, r2 = r2, $fn = 24);
         }
     }
+
+    r1 = 1.25;
+    r2 = 1;
+    d = wall_t / 2;
 
     color("red")
     if (holes) {
         translate([0, 0, E])
         mirror([0, 0, 1])
-        pins(r + T, board_t + T);
+        pins(r1 + T, r2 + T, d + T);
     } else {
-        pins(r, board_t);
+        pins(r1, r2, d);
     }
 }
 
@@ -149,7 +151,7 @@ module plate() {
         }
 
         color("#FF0000")
-        linear_extrude(diode_h)
+        linear_extrude(diode_h, convexity = 20)
         k_diodes();
     }
 }
@@ -158,7 +160,7 @@ module plate() {
 module wall() {
     translate([0, 0, board_t / 2 + plate_gap + E])
     mirror([0, 0, 1])
-    linear_extrude(wall_h)
+    linear_extrude(wall_h, convexity = 2)
     difference() {
         offset(wall_gap + wall_t)
         k_edge();
@@ -172,7 +174,7 @@ module wall() {
 module back_frame() {
     translate([0, 0, board_t / 2 + plate_gap + E - wall_h])
     mirror([0, 0, 1])
-    linear_extrude(back_frame_t)
+    linear_extrude(back_frame_t, convexity = 2)
     difference() {
         offset(wall_gap + wall_t)
         k_edge();

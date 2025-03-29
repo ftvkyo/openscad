@@ -1,7 +1,8 @@
+use <../../lib/fasteners.scad>
 use <../../lib/util.scad>
 
 
-PART = "all"; // ["all", "plate", "top-1", "top-2", "bottom"]
+PART = "all"; // ["all", "plate", "screws", "top-1", "top-2", "bottom"]
 
 
 board_t = 1.25;
@@ -9,7 +10,7 @@ board_t = 1.25;
 plate_t = 1.3;
 plate_gap = 0.5;
 
-wall_t = 4;
+wall_t = 5;
 wall_h = 3;
 wall_gap = 0.25;
 
@@ -28,48 +29,52 @@ k_o = [1.3, 5.5];
 T = 0.15;
 E = 0.01;
 
-alignment_pins = [
-    [10, -71],
-    [30, -56.4],
-    [50, -46.8],
-    [70, -41.4],
-    [90, -36],
-    [110, -30.7],
-    [130, -25.4],
-    [150, 0],
+screw_locations = [
+    [10, -70.7],
+    [56, -45.2],
 
-    [10, 51],
+    [68, -42],
+    [137.1, -23],
+    [152.5, 4.5],
+    [137.7, 58.3],
+    [110.3, 70.9],
+    [40, 61.2],
+
     [30, 57.8],
-    [50, 64.5],
-    [70, 68.4],
-    [90, 69.6],
-    [110, 70.9],
-    [130, 62],
+    [10, 51],
 ];
 
 
-module alignment(holes = false) {
-    module pins(r1, r2, d) {
-        for(p = alignment_pins) {
-            translate([p.x, p.y, 0])
-            cylinder(d, r1 = r1, r2 = r2, $fn = 24);
+module fastening_screws(holes = false) {
+    assert(is_bool(holes));
 
-            translate([-p.x, p.y, 0])
-            cylinder(d, r1 = r1, r2 = r2, $fn = 24);
-        }
+    $fn = 24;
+
+    color("#FF00FF")
+    translate([0, 0, 1])
+    for (s = screw_locations) {
+        translate([s.x, s.y, 0])
+        screw_M2x4(hole = holes);
+
+        translate([-s.x, s.y, 0])
+        screw_M2x4(hole = holes);
     }
+}
 
-    r1 = 1.25;
-    r2 = 1;
-    d = wall_t / 2;
+module fastening_inserts(holes = false) {
+    assert(is_bool(holes));
 
-    color("red")
-    if (holes) {
-        translate([0, 0, E])
-        mirror([0, 0, 1])
-        pins(r1 + T, r2 + T, d + T);
-    } else {
-        pins(r1, r2, d);
+    $fn = 24;
+
+    color("#FFFF00")
+    translate([0, 0, - wall_h / 2 - back_frame_t])
+    mirror([0, 0, 1])
+    for (s = screw_locations) {
+        translate([s.x, s.y, 0])
+        heat_insert_M2(hole = holes);
+
+        translate([-s.x, s.y, 0])
+        heat_insert_M2(hole = holes);
     }
 }
 
@@ -158,6 +163,7 @@ module plate() {
 
 
 module wall() {
+    color("#88FF88")
     translate([0, 0, board_t / 2 + plate_gap + E])
     mirror([0, 0, 1])
     linear_extrude(wall_h, convexity = 2)
@@ -172,6 +178,7 @@ module wall() {
 
 
 module back_frame() {
+    color("#8888FF")
     translate([0, 0, board_t / 2 + plate_gap + E - wall_h])
     mirror([0, 0, 1])
     linear_extrude(back_frame_t, convexity = 2)
@@ -188,50 +195,57 @@ module back_frame() {
 
 
 module assembly() {
-    plate();
+    difference() {
+        union() {
+            plate();
+            wall();
+            back_frame();
+        }
 
-    color("#88FF88")
-    wall();
-
-    color("#8888FF")
-    back_frame();
+        fastening_screws(holes = true);
+        fastening_inserts(holes = true);
+    }
 }
 
 module assembly_top() {
     rotate([0, 180, 0])
-    half3()
+    half3("z+")
     assembly();
-
-    alignment();
 }
 
 module assembly_bottom() {
-    difference() {
-        half3("z-")
-        assembly();
-
-        alignment(holes = true);
-    }
+    half3("z-")
+    assembly();
 }
 
 
 module partitioner() {
     linear_extrude(50, center = true)
     polygon([
-        [30, 100],
-        [80, -100],
-        [-80, -100],
-        [-30, 100],
+        [24, 100],
+        [77, -100],
+        [-77, -100],
+        [-24, 100],
     ]);
 }
+
+
+// !assembly_top();
+// !assembly_bottom();
 
 
 if (PART == "all") {
     assembly();
     %board();
+    %fastening_screws();
+    %fastening_inserts();
 } else if (PART == "plate") {
-    rotate([0, 180, 0])
     assembly();
+    %partitioner();
+} else if (PART == "screws") {
+    fastening_screws();
+    color("#FFFF0044")
+    fastening_inserts();
 } else if (PART == "top-1") {
     translate([k_x / 4, 0, 0])
     half3("x-")
@@ -255,7 +269,7 @@ if (PART == "all") {
         partitioner();
     }
 
-    translate([-50, 0, 0])
+    translate([-45, 0, 0])
     rotate([0, 0, -15])
     difference() {
         half3("x+")
@@ -263,7 +277,7 @@ if (PART == "all") {
         partitioner();
     }
 
-    translate([50, 0, 0])
+    translate([45, 0, 0])
     rotate([0, 0, 15])
     difference() {
         half3("x-")
@@ -273,6 +287,3 @@ if (PART == "all") {
 } else {
     assert(false);
 }
-
-
-// %board();

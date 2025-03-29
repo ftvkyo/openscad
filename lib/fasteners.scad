@@ -16,6 +16,16 @@ module screw(
 }
 
 
+module screw_M2x4(hole = false, hole_l = 6) {
+    screw(
+        screw_l = hole ? hole_l : 3.8,
+        screw_d = hole ? 2 : 1.75,
+        cap_l = hole ? INF : 1.75,
+        cap_d = hole ? 4 : 3.5
+    );
+}
+
+
 module screw_M2x6(hole = false, hole_l = 6) {
     screw(
         screw_l = hole ? hole_l : 5.5,
@@ -42,9 +52,12 @@ module heat_insert(
 }
 
 
-module heat_insert_M2(hole = false) {
+module heat_insert_M2(hole = false, hole_l = 10) {
+    depth = 3;
+
+    translate([0, 0, hole ? hole_l - depth : 0])
     heat_insert(
-        insert_l = 3,
+        insert_l = hole ? hole_l : depth,
         insert_d = hole ? 3.2 : 3.5,
         screw_l = undef,
         screw_d = hole ? 2 : undef

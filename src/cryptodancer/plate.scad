@@ -141,23 +141,32 @@ module board() {
 
 
 module plate() {
-    translate([0, 0, board_t / 2])
-    difference() {
-        color("#FF8888")
-        translate([0, 0, plate_gap])
-        linear_extrude(plate_t, convexity = 20)
+    translate([0, 0, board_t / 2]) {
         difference() {
-            offset(wall_gap + wall_t)
-            k_edge();
+            color("#FF8888")
+            translate([0, 0, plate_gap])
+            linear_extrude(plate_t, convexity = 20)
+            difference() {
+                offset(wall_gap + wall_t)
+                k_edge();
 
-            k_switches();
-            k_encoders();
-            k_controller();
+                k_switches();
+                k_encoders();
+                k_controller();
+            }
+
+            color("#FF0000")
+            linear_extrude(diode_h, convexity = 20)
+            k_diodes();
         }
 
-        color("#FF0000")
-        linear_extrude(diode_h, convexity = 20)
-        k_diodes();
+        linear_extrude(plate_gap + E, convexity = 4)
+        difference() {
+            offset(2, $fn = 1)
+            k_encoders();
+
+            k_encoders();
+        }
     }
 }
 

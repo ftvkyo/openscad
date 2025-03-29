@@ -1,7 +1,7 @@
 use <../../lib/util.scad>
 
 
-PART = "all"; // ["all", "top-1", "top-2", "bottom"]
+PART = "all"; // ["all", "plate", "top-1", "top-2", "bottom"]
 
 
 board_t = 1.25;
@@ -138,10 +138,10 @@ module plate() {
 
             k_switches();
 
-            offset(T) {
-                k_controller();
-                k_encoders();
-            }
+            k_encoders();
+
+            offset(T)
+            k_controller();
         }
 
         linear_extrude(diode_h)
@@ -222,6 +222,9 @@ module partitioner() {
 if (PART == "all") {
     assembly();
     %board();
+} else if (PART == "plate") {
+    rotate([0, 180, 0])
+    assembly();
 } else if (PART == "top-1") {
     half3("x-")
     assembly_top();

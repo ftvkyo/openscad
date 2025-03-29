@@ -115,7 +115,7 @@ module k_switches() {
 
 
 module board() {
-    color("#32328866")
+    color("#66666666")
     linear_extrude(5) {
         k_diodes();
         k_encoders();
@@ -136,8 +136,9 @@ module board() {
 module plate() {
     translate([0, 0, board_t / 2])
     difference() {
+        color("#FF8888")
         translate([0, 0, plate_gap])
-        linear_extrude(plate_t)
+        linear_extrude(plate_t, convexity = 20)
         difference() {
             offset(wall_gap + wall_t)
             k_edge();
@@ -147,6 +148,7 @@ module plate() {
             k_controller();
         }
 
+        color("#FF0000")
         linear_extrude(diode_h)
         k_diodes();
     }
@@ -185,7 +187,11 @@ module back_frame() {
 
 module assembly() {
     plate();
+
+    color("#88FF88")
     wall();
+
+    color("#8888FF")
     back_frame();
 }
 
@@ -225,9 +231,11 @@ if (PART == "all") {
     rotate([0, 180, 0])
     assembly();
 } else if (PART == "top-1") {
+    translate([k_x / 4, 0, 0])
     half3("x-")
     assembly_top();
 } else if (PART == "top-2") {
+    translate([- k_x / 4, 0, 0])
     half3("x+")
     assembly_top();
 } else if (PART == "bottom") {

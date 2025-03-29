@@ -96,6 +96,8 @@ module k_controller() {
 }
 
 module k_diodes() {
+    offset(0.99, $fn = 36)
+    offset(-0.99, $fn = 36)
     translate([-k_x/2, -k_y/2] - k_o)
     import("cryptodancer-diodes.svg");
 }
@@ -146,8 +148,6 @@ module plate() {
         }
 
         linear_extrude(diode_h)
-        offset(0.99, $fn = 36)
-        offset(-0.99, $fn = 36)
         k_diodes();
     }
 }
@@ -178,8 +178,6 @@ module back_frame() {
         offset(-back_frame_overlap)
         k_edge();
 
-        offset(0.99, $fn = 36)
-        offset(-0.99, $fn = 36)
         k_diodes();
     }
 }

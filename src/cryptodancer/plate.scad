@@ -84,11 +84,15 @@ module k_holes() {
 }
 
 module k_controller() {
+    header_pins = 20;
+    header_w = 2.54;
+    header_l = (header_pins + 1) * 2.54;
+
     translate([2.54 * 3, 17])
-    square([2.54, 20 * 2.54], center = true);
+    square([header_w, header_l], center = true);
 
     translate([- 2.54 * 3, 17])
-    square([2.54, 20 * 2.54], center = true);
+    square([header_w, header_l], center = true);
 }
 
 module k_diodes() {
@@ -137,10 +141,7 @@ module plate() {
             k_edge();
 
             k_switches();
-
             k_encoders();
-
-            offset(T)
             k_controller();
         }
 

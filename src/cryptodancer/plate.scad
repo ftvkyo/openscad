@@ -17,7 +17,7 @@ wall_gap = 0.25;
 back_frame_t = 2;
 back_frame_overlap = 2.5;
 
-diode_h = 1.5;
+diode_h = 1.4;
 
 
 module __hidden__() {}

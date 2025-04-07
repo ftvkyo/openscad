@@ -1,5 +1,4 @@
-symbol = "";
-dot = false;
+display = "A"; // ["Colemak Mod-DH", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
 
 NOZ = 0.4;
 
@@ -9,8 +8,8 @@ x = 17.4;
 y = 16.4;
 z = 5.6;
 
-pin_x = 1.1 - NOZ / 2;
-pin_y = 2.8 - NOZ / 2;
+pin_x = 1.1;
+pin_y = 2.8;
 pin_z = 3.2;
 
 pin_dx = 4.6;
@@ -79,25 +78,28 @@ module hat() {
         translate([0, ps[0], chamfer_reduction])
         chamferer();
 
-        pad(0.8);
+        pad(0.7);
     }
 }
 
-module cap(sym) {
+module cap(sym, dot) {
     pins();
-    hat();
 
-    color("red")
     difference() {
-        linear_extrude(hat_z, convexity = 4)
-        text(
-            sym,
-            font = "Iosevka:style=Light Extended",
-            valign = "center",
-            halign = "center"
-        );
+        hat();
 
-        pad(0.6);
+        color("red")
+        intersection() {
+            linear_extrude(hat_z, convexity = 4)
+            text(
+                sym,
+                font = "Iosevka:style=Light Extended",
+                valign = "center",
+                halign = "center"
+            );
+
+            pad(0.8);
+        }
     }
 
     if (dot) {
@@ -107,5 +109,23 @@ module cap(sym) {
     }
 }
 
-rotate([90, 0, 0])
-cap(symbol);
+
+if (display == "Colemak Mod-DH") {
+    for (i = [0 : 25]) {
+        ox = (i % 4) * (x + 10);
+        oy = floor(i / 4) * (z + 10);
+
+        c = chr(65 + i);
+
+        translate([ox, oy, 0])
+        rotate([90, 0, 0])
+        if (c == "T" || c == "N") {
+            cap(c, true);
+        } else {
+            cap(c, false);
+        }
+    }
+} else {
+    rotate([90, 0, 0])
+    cap(display);
+}

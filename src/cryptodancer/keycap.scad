@@ -1,22 +1,25 @@
 symbol = "";
 dot = false;
 
+NOZ = 0.4;
+
 module __hidden__ () {}
 
 x = 17.4;
 y = 16.4;
 z = 5.6;
 
-pin_y = 2.8;
-pin_x = 1.1;
+pin_x = 1.1 - NOZ / 2;
+pin_y = 2.8 - NOZ / 2;
 pin_z = 3.2;
 
 pin_dx = 4.6;
 
+hat_z = 3.8;
 hat_depth = 1.4;
 hat_wall = 0.8;
 
-NOZ = 0.4;
+chamfer_reduction = 0.4;
 
 E = 0.01;
 
@@ -37,11 +40,11 @@ module pins() {
 }
 
 module pad(rd = 0) {
-    r = 100;
+    r = 200;
     $fn = 360;
 
-    translate([0, 0, r + NOZ])
-    sphere(r - rd);
+    translate([0, 0, r + hat_z - hat_depth])
+    sphere(r + rd);
 }
 
 module hat() {
@@ -63,7 +66,7 @@ module hat() {
 
     difference() {
         translate([0, 0, - hat_depth])
-        linear_extrude(z - pin_z)
+        linear_extrude(hat_z)
         profile();
 
         translate([0, 0, - hat_depth - E])
@@ -73,10 +76,10 @@ module hat() {
 
         for (ps = [[y / 2, 0], [x / 2, 90], [y / 2, 180], [x / 2, 270]])
         rotate([0, 0, ps[1]])
-        translate([0, ps[0], 0])
+        translate([0, ps[0], chamfer_reduction])
         chamferer();
 
-        pad();
+        pad(0.8);
     }
 }
 
@@ -86,7 +89,7 @@ module cap(sym) {
 
     color("red")
     difference() {
-        linear_extrude(z - pin_z - hat_depth, convexity = 4)
+        linear_extrude(hat_z, convexity = 4)
         text(
             sym,
             font = "Iosevka:style=Extralight Extended",
@@ -94,7 +97,7 @@ module cap(sym) {
             halign = "center"
         );
 
-        pad(0.2);
+        pad(0.6);
     }
 
     if (dot) {
@@ -104,4 +107,5 @@ module cap(sym) {
     }
 }
 
+rotate([90, 0, 0])
 cap(symbol);

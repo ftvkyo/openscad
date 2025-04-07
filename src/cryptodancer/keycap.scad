@@ -92,7 +92,7 @@ module cap(sym) {
         linear_extrude(hat_z, convexity = 4)
         text(
             sym,
-            font = "Iosevka:style=Extralight Extended",
+            font = "Iosevka:style=Light Extended",
             valign = "center",
             halign = "center"
         );

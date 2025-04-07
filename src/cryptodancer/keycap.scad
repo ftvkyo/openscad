@@ -101,9 +101,9 @@ module cap(sym) {
     }
 
     if (dot) {
-        translate([0, - y / 2 + 2, z - pin_z - hat_depth - 0.4])
+        translate([0, - y / 2 + 2, hat_z - hat_depth - 0.5])
         rotate([0, 90, 0])
-        cylinder(5, r = 0.2, center = true, $fn = 24);
+        cylinder(5, r = 0.25, center = true, $fn = 24);
     }
 }
 

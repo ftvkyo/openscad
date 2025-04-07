@@ -1,4 +1,5 @@
-display = "A"; // ["Colemak Mod-DH", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+symbol = "A"; // ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+dot = false;
 
 NOZ = 0.4;
 
@@ -110,22 +111,6 @@ module cap(sym, dot) {
 }
 
 
-if (display == "Colemak Mod-DH") {
-    for (i = [0 : 25]) {
-        ox = (i % 4) * (x + 10);
-        oy = floor(i / 4) * (z + 10);
 
-        c = chr(65 + i);
-
-        translate([ox, oy, 0])
-        rotate([90, 0, 0])
-        if (c == "T" || c == "N") {
-            cap(c, true);
-        } else {
-            cap(c, false);
-        }
-    }
-} else {
-    rotate([90, 0, 0])
-    cap(display);
-}
+rotate([90, 0, 0])
+cap(symbol, dot);

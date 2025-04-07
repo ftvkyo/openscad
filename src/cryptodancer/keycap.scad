@@ -40,7 +40,7 @@ module pins() {
 }
 
 module pad(rd = 0) {
-    r = 200;
+    r = 80;
     $fn = 360;
 
     translate([0, 0, r + hat_z - hat_depth])

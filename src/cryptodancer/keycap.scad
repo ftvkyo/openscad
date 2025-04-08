@@ -1,4 +1,4 @@
-symbol = "A"; // ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"]
+symbol = "A";
 dot = false;
 
 NOZ = 0.4;
@@ -86,6 +86,9 @@ module hat() {
 module cap(sym, dot) {
     pins();
 
+    l = len(sym);
+    sz = l == 1 ? 10 : l == 2 ? 8 : l == 3 ? 6 : 4;
+
     difference() {
         hat();
 
@@ -94,6 +97,7 @@ module cap(sym, dot) {
             linear_extrude(hat_z, convexity = 4)
             text(
                 sym,
+                size = sz,
                 font = "Iosevka:style=Light Extended",
                 valign = "center",
                 halign = "center"

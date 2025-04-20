@@ -1,4 +1,4 @@
-DISPLAY = "all"; // ["all", "slice", "spike_base", "spike_tip"]
+DISPLAY = "all"; // ["all", "slice", "spike-base", "spike-tip", "driver-base", "driver-tip"]
 
 fabric_thickness = 1.6;
 fabric_width = 12.5;
@@ -11,8 +11,14 @@ spike_screw_factor = 1.25;
 spike_counter_thickness = 2.5;
 spike_counter_radius = 7.5;
 
+driver_length = 15;
+
 E = 0.01;
 T = 0.15;
+
+module __hidden__() {}
+
+base_xy = [spike_counter_radius * 2, fabric_hole_radius * 2 * 0.7];
 
 module fabric() {
     $fn = 24;
@@ -60,15 +66,37 @@ module spike_base() {
             screw();
         }
 
-        cube([spike_counter_radius * 2, fabric_hole_radius * 2 * 0.7, spike_screw_length * 3], center = true);
+        cube([base_xy.x, base_xy.y, spike_screw_length * 3], center = true);
     }
 }
 
-module spike_tip() {
+module spike_tip(hole = true) {
     difference() {
         translate([0, 0, E])
         cylinder(spike_length, r1 = spike_base_radius, r2 = 1.5, $fn = 6);
+
+        if (hole)
         screw(hole = true);
+    }
+}
+
+module driver_base() {
+    linear_extrude(driver_length)
+    difference() {
+        offset(3, $fn = 24)
+        square(base_xy, center = true);
+
+        offset(T)
+        square(base_xy, center = true);
+    }
+}
+
+module driver_tip() {
+    difference() {
+        translate([0, 0, E * 2])
+        cylinder(driver_length, r = 10, $fn = 6);
+
+        spike_tip(hole = false);
     }
 }
 
@@ -88,9 +116,13 @@ if (DISPLAY == "all") {
         translate([0, 50, 0])
         cube([100, 100, 100], center = true);
     }
-} else if (DISPLAY == "spike_base") {
+} else if (DISPLAY == "spike-base") {
     rotate([90, 0, 0])
     spike_base();
-} else if (DISPLAY == "spike_tip") {
+} else if (DISPLAY == "spike-tip") {
     spike_tip();
+} else if (DISPLAY == "driver-base") {
+    driver_base();
+} else if (DISPLAY == "driver-tip") {
+    driver_tip();
 }

@@ -81,6 +81,10 @@ module spike_tip(hole = true) {
 }
 
 module driver_base() {
+    linear_extrude(driver_length - 3)
+    offset(3, $fn = 24)
+    square(base_xy, center = true);
+
     linear_extrude(driver_length)
     difference() {
         offset(3, $fn = 24)

@@ -1,4 +1,4 @@
-card_dim = [1, 86, 55];
+card_dim = [1.5, 86, 55];
 
 card_slot_count = 10;
 card_slot_gap = 2;
@@ -18,11 +18,11 @@ module card() {
     cube(card_dim, center = true);
 }
 
-
 module card_slots() {
-    translate([- (card_slot_count - 1) * card_slot_period / 2, 0, 0])
+    translate([- (card_slot_count - 1) * card_slot_period / 2, - card_dim.y / 2, 0])
+    rotate([5, 0, 0])
     for(ix = [0 : card_slot_count - 1])
-    translate([ix * card_slot_period, 0, 0])
+    translate([ix * card_slot_period, card_dim.y / 2, 0])
     card();
 }
 
@@ -30,7 +30,7 @@ module base() {
     intersection() {
         base_h = base_dim.z - base_rounding;
         minkowski() {
-            translate([0, base_rounding / 2, base_h / 2])
+            translate([0, - base_rounding / 2, base_h / 2])
             cube([base_dim.x, base_dim.y - base_rounding, base_h], center = true);
 
             sphere(base_rounding, $fn = 36);

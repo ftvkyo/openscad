@@ -13,7 +13,6 @@ function pts_f(f, edges) =
     [ for (e = [1 : 1 : edges]) f(e / edges) ];
 
 
-
 function pts_f_interp(f1, f2, t) =
     assert(is_num(t) && 0 <= t && t <= 1, "'t' is not a number between 0 and 1")
     let (
@@ -21,6 +20,14 @@ function pts_f_interp(f1, f2, t) =
         s2 = pts_f(f2, $fn)
     )
     [ for (i = [0 : $fn - 1]) lerp(s1[i], s2[i], t) ];
+
+
+function pts_f_interp_free(f1, f2, t) =
+    let (
+        s1 = pts_f(f1, $fn),
+        s2 = pts_f(f2, $fn)
+    )
+    [ for (i = [0 : $fn - 1]) lerp_free(s1[i], s2[i], t) ];
 
 
 function pts_circle(radius, edges) =

@@ -23,6 +23,14 @@ function normal(a, b) = let (t = b - a) [-t.y, t.x] / norm(t);
 */
 function lerp(v0, v1, t) = assert(t >= 0 && t <= 1) (1 - t) * v0 + t * v1;
 
+/**
+    Performs linear interpolation between values `v0` and `v1`, with `t` not limited to the interval [0, 1].
+
+    Parameter `t` determines the weights of `v0` and `v1`.
+    Its valid values are in the interval [0, 1].
+*/
+function lerp_free(v0, v1, t) = (1 - t) * v0 + t * v1;
+
 _b2 = function (pts, t) lerp(lerp(pts[0], pts[1], t), lerp(pts[1], pts[2], t), t);
 
 /**

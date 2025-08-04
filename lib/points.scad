@@ -7,9 +7,25 @@ use <util.scad>
  * ============================ */
 
 
+function pts_f(f, edges) =
+    assert(is_function(f), "'f' is not a function")
+    assert(is_num(edges) && edges > 2, "'edges' is not a number greater than 2")
+    [ for (e = [1 : 1 : edges]) f(e / edges) ];
+
+
+
+function pts_f_interp(f1, f2, t) =
+    assert(is_num(t) && 0 <= t && t <= 1, "'t' is not a number between 0 and 1")
+    let (
+        s1 = pts_f(f1, $fn),
+        s2 = pts_f(f2, $fn)
+    )
+    [ for (i = [0 : $fn - 1]) lerp(s1[i], s2[i], t) ];
+
+
 function pts_circle(radius, edges) =
-    assert(is_num(radius) && radius > 0, "'radius' is not a number larger than 0")
-    assert(is_undef(edges) || (is_num(edges) && edges > 2) , "'edges' is not a number larger than 2")
+    assert(is_num(radius) && radius > 0, "'radius' is not a number greater than 0")
+    assert(is_undef(edges) || (is_num(edges) && edges > 2) , "'edges' is not a number greater than 2")
     let(edges = is_num(edges) ? edges : clamp(12, radius, 360))
     [ for (a = [0 : 360 / edges : 359.99999]) [cos(a) * radius, sin(a) * radius] ];
 
@@ -26,15 +42,22 @@ function pts_translate3(slice, t) =
     [ for (point = slice) point + t ];
 
 
+function pts_scale2(slice, s) =
+    assert(_assert_flat(slice))
+    assert(_assert_vec2(s))
+    [ for (p = slice) [p.x * s.x, p.y * s.y] ];
+
+
 function pts_scale3(slice, s) =
     assert(_assert_slice(slice))
     assert(_assert_vec3(s))
     [ for (p = slice) [p.x * s.x, p.y * s.y, p.z * s.z] ];
 
 
-function pts_inflate(flat) =
+function pts_rotate2(flat, r) =
     assert(_assert_flat(flat))
-    [ for (point = flat) [point.x, point.y, 0] ];
+    assert(is_num(r))
+    [ for (p = flat) [p.x * cos(r) - p.y * sin(r), p.x * sin(r) + p.y * cos(r)] ];
 
 
 function pts_rotate3(s, r) =
@@ -62,6 +85,11 @@ function pts_rotate3(s, r) =
             ]
         ) p3
     ];
+
+
+function pts_inflate(flat) =
+    assert(_assert_flat(flat))
+    [ for (point = flat) [point.x, point.y, 0] ];
 
 
 module pts_extrude(slices, loop = true, quads = true) {

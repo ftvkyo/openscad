@@ -1,0 +1,30 @@
+// Credit: https://easings.net/
+
+function ease_in_sine(t) = 1 - cos(t * 90);
+function ease_out_sine(t) = sin(t * 90);
+function ease_in_out_sine(t) = (cos(t * 180) - 1) / -2;
+
+function ease_in_out_cubic(t) =
+    t < 0.5
+    ? 4 * t * t * t
+    : 1 - pow(-2 * t + 2, 3) / 2;
+
+function ease_in_elastic(t) =
+    let (c4 = 360 / 3)
+    t == 0 ? 0 :
+    t == 1 ? 1 :
+    - pow(2, 10 * t - 10) * sin((t * 10 - 10.75) * c4);
+
+function ease_out_elastic(t) =
+    let (c4 = 360 / 3)
+    t == 0 ? 0 :
+    t == 1 ? 1 :
+    pow(2, -10 * t) * sin((t * 10 - 0.75) * c4) + 1;
+
+function ease_in_out_elastic(t) =
+    let (c5 = 360 / 4.5)
+    t == 0 ? 0 :
+    t == 1 ? 1 :
+    t < 0.5
+    ? - pow(2, 20 * t - 10) * sin((20 * t - 11.125) * c5) / 2
+    : pow(2, -20 * t + 10) * sin((20 * t - 11.125) * c5) / 2 + 1;

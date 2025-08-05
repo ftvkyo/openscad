@@ -4,61 +4,88 @@ use <../../lib/ease.scad>
 
 include <../../lib/points_shapes.scad>
 
-r1 = 35;
-r2 = 50;
-height = 75;
+
+function f_slice(shape_a, shape_b, r_a, r_b, twist, twist_offset, height, height_offset, ease_interp, ease_scale, ease_twist) =
+    function(t)
+        pts_translate3(
+            pts_inflate(
+                pts_rotate2(
+                    pts_scale2(
+                        pts_f_interp_free(
+                            shape_a,
+                            shape_b,
+                            ease_interp(t)
+                        ),
+                        [1, 1] * lerp_free(r_a, r_b, ease_scale(t))
+                    ),
+                    ease_twist(t) * twist + twist_offset
+                )
+            ),
+            [0, 0, t * height + height_offset]
+        );
+
+
+slices = 3;
+
+
+module pts_slice(f) {
+    pts_extrude([ for (t = [0 : 1 / ($fn / slices) : 1]) f(t) ], loop = false);
+}
+
+
+r1 = 30;
+r2 = 40;
+r3 = 35;
+r4 = 45;
+
+height = 100;
 twist = 45;
 
-$fn = 180;
-slices = 180;
+$fn = 120;
 
-ease_interp = function(t) ease_in_out_sine(t);
-
-ease_scale  = function(t) ease_in_cubic(t);
-
-ease_twist1 = function(t) ease_in_cubic(t);
-ease_twist2 = function(t) ease_out_cubic(t);
 
 module vase() {
-    fs_slice = [
-        function(t)
-            pts_translate3(
-                pts_inflate(
-                    pts_rotate2(
-                        pts_scale2(
-                            pts_f_interp_free(
-                                f_hexagon,
-                                f_star6,
-                                ease_interp(t)
-                            ),
-                            [1, 1] * lerp_free(r1, r2, ease_scale(t / 2))
-                        ),
-                        ease_twist1(t) * twist
-                    )
-                ),
-                [0, 0, t * height / 2]
-            ),
-        function(t)
-            pts_translate3(
-                pts_inflate(
-                    pts_rotate2(
-                        pts_scale2(
-                            pts_f_interp_free(
-                                f_star6,
-                                f_circle,
-                                ease_interp(t)
-                            ),
-                            [1, 1] * lerp_free(r1, r2, ease_scale((t + 1) / 2))
-                        ),
-                        ease_twist2(t) * twist + twist
-                    )
-                ),
-                [0, 0, (t + 1) * height / 2]
-            ),
-    ];
+    pts_slice(f_slice(
+        shape_a = f_hexagon,
+        shape_b = f_star12,
+        r_a = r1,
+        r_b = r2,
+        twist = 30,
+        twist_offset = 0,
+        height = height / 3,
+        height_offset = 0,
+        ease_interp = function(t) ease_in_out_sine(t),
+        ease_scale = function(t) ease_in_out_quadratic(t),
+        ease_twist = function(t) ease_in_cubic(t)
+    ));
 
-    pts_extrude([ for (t = [0 : 1 / (slices / 2) : 1]) fs_slice[0](t) ], loop = false);
-    pts_extrude([ for (t = [0 : 1 / (slices / 2) : 1]) fs_slice[1](t) ], loop = false);
+    pts_slice(f_slice(
+        shape_a = f_star12,
+        shape_b = f_star12_rot1,
+        r_a = r2,
+        r_b = r3,
+        twist = 30,
+        twist_offset = 30,
+        height = height / 3,
+        height_offset = height / 3,
+        ease_interp = function(t) ease_in_out_sine(t),
+        ease_scale = function(t) ease_in_out_quadratic(t),
+        ease_twist = function(t) ease_out_cubic(t)
+    ));
+
+    pts_slice(f_slice(
+        shape_a = f_star12_rot1,
+        shape_b = f_circle,
+        r_a = r3,
+        r_b = r4,
+        twist = - 30,
+        twist_offset = 60,
+        height = height / 3,
+        height_offset = height * 2 / 3,
+        ease_interp = function(t) ease_in_out_sine(t),
+        ease_scale = function(t) ease_in_out_quadratic(t),
+        ease_twist = function(t) ease_in_out_cubic(t)
+    ));
 }
 
 vase();

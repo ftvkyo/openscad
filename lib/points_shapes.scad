@@ -93,3 +93,12 @@ f_star12 = function(t)
         sector_point_a = f_star12_point(sector),
         sector_point_b = f_star12_point(sector + 1)
     ) lerp(sector_point_a, sector_point_b, sector_t);
+
+f_star12_rot1 = function(t)
+    assert(is_num(t) && 0 <= t && t <= 1, "'t' is not a number between 0 and 1")
+    let (
+        sector = floor(t * 24),
+        sector_t = t * 24 - sector,
+        sector_point_a = f_star12_point(sector + 1),
+        sector_point_b = f_star12_point(sector + 2)
+    ) lerp(sector_point_a, sector_point_b, sector_t);

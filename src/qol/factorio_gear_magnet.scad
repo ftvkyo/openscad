@@ -7,7 +7,7 @@ teeth_radius = 25;
 teeth_width = 7.5;
 
 magnet_thickness = 3;
-magnet_radius = 3.05;
+magnet_radius = 3.15;
 
 $fn = $preview ? 12 : 48;
 

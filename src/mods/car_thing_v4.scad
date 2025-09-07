@@ -242,11 +242,18 @@ module assembly_holed() {
         rotate([180, 0, 0])
         joiner(hole = true);
 
-        translate([0, 0, 40])
-        aligner(hole = true);
+        rotate([0, 0, elevation_twist])
+        translate([0, 0, elevation_height]) {
+            translate([0, 0, 30])
+            aligner(hole = true);
 
-        translate([0, 0, 10])
-        aligner(hole = true);
+            aligner(hole = true);
+
+            translate([bend_radius1 * bend_factor, 0, 0])
+            rotate([0, bend_angle, 0])
+            translate([- bend_radius1 * bend_factor, 0, ball_radius * 3/4])
+            aligner(hole = true);
+        }
     }
 }
 

@@ -1,34 +1,21 @@
 use <../../lib/maths.scad>
 use <../../lib/points.scad>
 use <../../lib/ease.scad>
+use <../../lib/util.scad>
 
 
-$fn = 120;
+PART = "all"; // ["all", "cylinder", "swirl-1", "swirl-2", "aligner"]
 
-f_circle = function(t) [cos(t * 360), sin(t * 360)];
 
-f_hexagon_point = function(n)
-    assert(is_num(n) && n >= 0, "'n' is not a number greater than 0")
-    let (n = n % 6)
-    let (r = sqrt(3) / 2)
-    n == 0 ? [1, 0] :
-    n == 1 ? [1/2, r] :
-    n == 2 ? [- 1/2, r] :
-    n == 3 ? [-1 , 0] :
-    n == 4 ? [- 1/2, - r] :
-    n == 5 ? [1/2, - r] :
-    undef;
+screw_length = 15;
+screw_radius = 1.5;
+screw_cap_length = 3;
+screw_cap_radius = 2.5;
 
-f_hexagon = function(t)
-    assert(is_num(t) && 0 <= t && t <= 1, "'t' is not a number between 0 and 1")
-    let (
-        r = sqrt(3) / 2,
-        sector = floor(t * 6),
-        sector_t = t * 6 - sector,
-        sector_point_a = f_hexagon_point(sector),
-        sector_point_b = f_hexagon_point(sector + 1)
-    ) lerp(sector_point_a, sector_point_b, sector_t);
+heat_insert_length = 4;
+heat_insert_radius = 2.5;
 
+screw_count = 12;
 
 base_radius = 37.75;
 base_height = 5;
@@ -53,6 +40,34 @@ bend_factor = 2.5;
 bend_twist = 180;
 
 ball_radius = 8.55;
+
+module __hidden__() {}
+
+$fn = $preview ? 48 : 120;
+
+f_circle = function(t) [cos(t * 360), sin(t * 360)];
+
+f_hexagon_point = function(n)
+    assert(is_num(n) && n >= 0, "'n' is not a number greater than 0")
+    let (n = n % 6)
+    let (r = sqrt(3) / 2)
+    n == 0 ? [1, 0] :
+    n == 1 ? [1/2, r] :
+    n == 2 ? [- 1/2, r] :
+    n == 3 ? [-1 , 0] :
+    n == 4 ? [- 1/2, - r] :
+    n == 5 ? [1/2, - r] :
+    undef;
+
+f_hexagon = function(t)
+    assert(is_num(t) && 0 <= t && t <= 1, "'t' is not a number between 0 and 1")
+    let (
+        r = sqrt(3) / 2,
+        sector = floor(t * 6),
+        sector_t = t * 6 - sector,
+        sector_point_a = f_hexagon_point(sector),
+        sector_point_b = f_hexagon_point(sector + 1)
+    ) lerp(sector_point_a, sector_point_b, sector_t);
 
 module base() {
     translate([0, 0, - base_height])
@@ -162,6 +177,38 @@ module ball() {
     sphere(ball_radius);
 }
 
+module screw(hole = false) {
+    t = hole ? 0.2 : 0;
+
+    translate([0, 0, screw_cap_length])
+    rotate([180, 0, 0]) {
+        cylinder(h = screw_cap_length + t, r = screw_cap_radius + t);
+        cylinder(h = screw_length, r = screw_radius + t);
+    }
+}
+
+module heat_insert() {
+    cylinder(h = heat_insert_length, r = heat_insert_radius);
+}
+
+module joiner(hole = false) {
+    translate([0, 0, base_height - screw_cap_length])
+    screw(hole);
+
+    rotate([180, 0, 0])
+    heat_insert();
+}
+
+module aligner(hole = false) {
+    t = hole ? 0.2 : 0;
+
+    rotate([90, 0, 0])
+    cylinder(h = 5 + t, r1 = 3 + t, r2 = 2 + t);
+
+    rotate([-90, 0, 0])
+    cylinder(h = 5 + t, r1 = 3 + t, r2 = 2 + t);
+}
+
 
 module assembly() {
     base();
@@ -184,4 +231,39 @@ module assembly() {
 }
 
 
-assembly();
+module assembly_holed() {
+    translate([0, 0, -0.01])
+    difference() {
+        assembly();
+
+        for (a = [1 : screw_count])
+        rotate([0, 0, (a + 1/2) * 360 / screw_count])
+        translate([base_radius * 2/3, 0, 0])
+        rotate([180, 0, 0])
+        joiner(hole = true);
+
+        translate([0, 0, 40])
+        aligner(hole = true);
+
+        translate([0, 0, 10])
+        aligner(hole = true);
+    }
+}
+
+
+if (PART == "all") {
+    assembly_holed();
+} else if (PART == "cylinder") {
+    half3("z-")
+    assembly_holed();
+} else if (PART == "swirl-1") {
+    half3("y+")
+    half3("z+")
+    assembly_holed();
+} else if (PART == "swirl-2") {
+    half3("y-")
+    half3("z+")
+    assembly_holed();
+} else if (PART == "aligner") {
+    aligner();
+}

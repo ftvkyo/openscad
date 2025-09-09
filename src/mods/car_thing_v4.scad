@@ -34,12 +34,12 @@ elevation_height = 10;
 elevation_twist = 0;
 
 bend_radius1 = 35;
-bend_radius2 = 3.5;
+bend_radius2 = 4.5;
 bend_angle = 45;
 bend_factor = 2.5;
 bend_twist = 180;
 
-ball_radius = 8.55;
+ball_radius = 8.5;
 
 module __hidden__() {}
 

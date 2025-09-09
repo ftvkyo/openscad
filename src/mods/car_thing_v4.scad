@@ -13,7 +13,7 @@ screw_cap_length = 3;
 screw_cap_radius = 2.5;
 
 heat_insert_length = 4;
-heat_insert_radius = 2.5;
+heat_insert_radius = 2.35;
 
 screw_count = 12;
 
@@ -174,7 +174,12 @@ module bend() {
 }
 
 module ball() {
-    sphere(ball_radius);
+    intersection() {
+        rotate([90, 0, 0])
+        sphere(ball_radius);
+
+        cube([ball_radius * 3, ball_radius * 7/4, ball_radius * 3], center = true);
+    }
 }
 
 module screw(hole = false) {

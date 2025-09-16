@@ -1,16 +1,16 @@
 /* [General] */
 
-radius = 15;
+radius = 15.0; // [10 : 1 : 30]
 ring_position = "vertex"; // [vertex, edge]
 
 /* [Detail] */
 
-thickness_connection = 1;
-thickness_a = 1.5;
-thickness_b = 2;
+thickness_connection = 1.0; // [1 : 0.25 : 5]
+thickness_a = 1.5; // [1 : 0.25 : 5]
+thickness_b = 2.0; // [1 : 0.25 : 5]
 
-ring_thickness = 1;
-ring_radius = 1.5;
+ring_thickness = 1.0; // [1 : 0.25 : 5]
+ring_radius = 1.5; // [1.5 : 0.25 : 3]
 
 /* [Colors] */
 

@@ -1,7 +1,8 @@
 /* [General] */
 
 radius = 15.0; // [10 : 1 : 30]
-ring_position = "vertex"; // [vertex, edge]
+add_ring = true;
+add_character = false;
 
 /* [Detail] */
 
@@ -20,6 +21,7 @@ color_b = "699ad7";
 /* [Debug] */
 
 enable_gap = true;
+just_lambda = false;
 
 
 module __hidden__ () {}
@@ -104,6 +106,31 @@ module lambda() {
         base();
         mask();
     }
+
+    if (add_character) {
+        $fn = $preview ? 12 : 48;
+
+        shift_multiplier = 0.8;
+
+        radius = lambda_thickness * 3/5;
+        shift = lambda_thickness / sqrt(3);
+
+        translate([- radius_outer_circumscribed / 2, radius_outer_circumscribed * sqrt(3) / 2]) {
+            translate([shift, 0] * shift_multiplier)
+            circle(radius);
+
+            translate([- shift / 2, - shift * sqrt(3) / 2] * shift_multiplier)
+            circle(radius);
+        }
+
+        translate([radius_inner_circumscribed / 2 - radius_outer_circumscribed + shift / 2, radius_inner_inscribed + shift * sqrt(3) / 2]) {
+            translate([0, - shift * sqrt(3) / 2] * shift_multiplier)
+            circle(radius);
+
+            translate([0, shift * sqrt(3) / 2] * shift_multiplier)
+            circle(radius);
+        }
+    }
 }
 
 module lambda_connection() {
@@ -124,7 +151,7 @@ module assembly() {
     rotate(a * 60)
     minkowski() {
         linear_extrude(thickness_a - rounding)
-        offset(-rounding)
+        offset(-rounding, $fn = 12)
         lambda();
 
         rounder(rounding, rounding);
@@ -135,7 +162,7 @@ module assembly() {
     rotate(a * 60)
     minkowski() {
         linear_extrude(thickness_b - rounding)
-        offset(-rounding)
+        offset(-rounding, $fn = 12)
         lambda();
 
         rounder(rounding, rounding);
@@ -148,15 +175,15 @@ module assembly() {
     lambda_connection();
 
     color("grey")
-    if (ring_position == "edge") {
-        o = radius_outer_inscribed + ring_radius - ring_thickness * 2/3;
-        translate([0, o])
-        ring();
-    } else if (ring_position == "vertex") {
-        o = radius_outer_circumscribed + ring_radius - ring_thickness * 2/3;
+    if (add_ring) {
+        o = radius_outer_circumscribed + ring_radius - ring_thickness * 2/3 + (add_character ? lambda_thickness / 5 : 0);
         translate([o * cos(60), o * sin(60)])
         ring();
     }
 }
 
-assembly();
+if (just_lambda) {
+    lambda();
+} else {
+    assembly();
+}

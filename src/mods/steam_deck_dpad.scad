@@ -123,6 +123,8 @@ module dpad_support() {
 
         projection()
         buttons(negative = true);
+
+        circle(button_radius);
     }
 }
 

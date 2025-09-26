@@ -18,16 +18,16 @@ dpad_rim_left_reduction = 4.0;
 dpad_rounding = 1.0;
 
 button_height = 6.5;
-button_distance = 16.0;
-button_radius = 3.0;
-button_reduction = 0.5;
+button_gap = 2.0;
+button_slant = 7.5;
 
-button_rim_width = 0.4;
+button_rim_width = 0.6;
 button_rim_height = 2.0;
 
 button_rounding = 1.0;
 button_tolerance = 0.2;
 
+dome_distance = 16.0;
 dome_relaxed_height = 2.8;
 dome_pressed_height = 1.9;
 dome_radius1 = 3.75;
@@ -40,52 +40,79 @@ pin_radius = 2.5;
 $fn = $preview ? 24 : 96;
 
 
-module buttons(negative = false) {
-    button_radius = negative ? button_radius + button_tolerance : button_radius;
-    button_rim_radius = button_radius + button_rim_width;
+module button_profile() {
+    button_x = dpad_diameter / 2 - dpad_rounding - button_gap * sqrt(2);
+    button_y = dpad_width - dpad_rounding * 2;
 
-    module button() {
-        if (negative) {
-            intersection() {
-                cylinder(h = button_height, r = button_radius);
+    intersection() {
+        translate([dome_distance / 2, 0])
+        square([button_x, button_y], center = true);
 
-                translate([- button_reduction, 0, 0])
-                cube([button_radius * 2, button_radius * 2, 100], center = true);
-            }
-        } else {
-            minkowski() {
-                intersection() {
-                    cylinder(h = button_height - button_rounding, r = button_radius - button_rounding);
-
-                    translate([- button_reduction, 0, 0])
-                    cube([(button_radius - button_rounding) * 2, (button_radius - button_rounding) * 2, 100], center = true);
-                }
-
-                half3()
-                sphere(button_rounding, $fn = 24);
-            }
-        }
+        circle(dpad_diameter / 2 - dpad_rounding);
     }
 
-    module button_rim() {
+    translate([dome_distance / 2 - button_x / 2, 0])
+    circle(button_y / 2, $fn = 4);
+}
+
+
+module button_rim_profile() {
+    button_x = dpad_diameter / 2 - dpad_rounding - button_gap * sqrt(2) - button_rim_width * 2;
+    button_y = dpad_width - dpad_rounding * 2 + button_rim_width * 2;
+
+
+    offset(button_rounding)
+    offset(- button_rounding) {
         intersection() {
-            union() {
-                cylinder(h = button_rim_height, r = button_rim_radius);
+            translate([dome_distance / 2, 0])
+            square([button_x, button_y], center = true);
 
-                translate([0, 0, button_rim_height])
-                cylinder(h = button_rim_width, r1 = button_rim_radius, r2 = button_radius);
-            }
+            circle(dpad_diameter / 2 - dpad_rounding);
+        }
 
-            translate([- button_reduction - button_rim_width, 0, 0])
-            cube([button_rim_radius * 2, button_rim_radius * 2, 100], center = true);
+        translate([dome_distance / 2 - button_x / 2, 0])
+        circle(button_y / 2, $fn = 4);
+    }
+}
+
+
+module buttons(negative = false) {
+    module button_base() {
+        intersection() {
+            linear_extrude(button_height - button_rounding)
+            offset(- button_tolerance)
+            offset(- button_rounding)
+            button_profile();
+
+            translate([dpad_diameter / 2 - dpad_rounding - button_rounding, 0, (button_height - button_rounding) / 2])
+            rotate([0, - button_slant, 0])
+            cube([dpad_diameter - dpad_rounding * 2, dpad_width, button_height - button_rounding], center = true);
         }
     }
 
-    for (a = [0, 90, 180, 270])
-    rotate([0, 0, a])
-    translate([button_distance / 2, 0, -0.01]) {
-        button();
-        button_rim();
+    for(a = [0, 90, 180, 270])
+    rotate(a)
+    if (!negative) {
+        minkowski() {
+            button_base();
+
+            half3()
+            sphere(button_rounding, $fn = 24);
+        }
+
+        linear_extrude(button_rim_height)
+        offset(- button_tolerance)
+        button_rim_profile();
+    } else {
+        linear_extrude(100, center = true)
+        offset(button_rounding)
+        offset(- button_rounding)
+        button_profile();
+
+        translate([0, 0, button_rim_height + button_tolerance])
+        mirror([0, 0, 1])
+        linear_extrude(100)
+        button_rim_profile();
     }
 }
 
@@ -166,7 +193,7 @@ module dpad() {
 
         for (a = [0, 90, 180, 270])
         rotate([0, 0, a])
-        translate([button_distance / 2, 0, - dome_relaxed_height - 0.01])
+        translate([dome_distance / 2, 0, - dome_relaxed_height - 0.01])
         cylinder(h = (dome_radius1 - dome_radius2), r1 = dome_radius1, r2 = dome_radius2);
     }
 }
@@ -174,9 +201,11 @@ module dpad() {
 
 module assembly() {
     color("#8888BB")
+    render()
     dpad();
 
     color("#BB6666")
+    render()
     buttons();
 }
 

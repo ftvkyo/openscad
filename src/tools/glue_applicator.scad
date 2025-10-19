@@ -26,7 +26,10 @@ $fn = $preview ? 24 : 48;
 
 function tip_top_point(t) =
     assert(0 <= t && t <= 1, str("0 <= t && t <= 1, got t = ", t))
-    [- tip_length * (1 - t), tip_front_end_thickness + (tip_back_end_thickness - tip_front_end_thickness) * (t ^ 2)];
+    let (x = - tip_length * (1 - t))
+    let (y1 = tip_front_end_thickness)
+    let (y2 = tip_back_end_thickness)
+    [x, lerp(y1, y2, ease_in_out_quadratic(t))];
 
 function f_slice(shape_a, shape_b, r_a, r_b, twist, twist_offset, height, height_offset, ease_interp, ease_scale, ease_twist) =
     function(t)

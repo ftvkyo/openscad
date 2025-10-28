@@ -42,6 +42,29 @@ f_square = function(t)
     ) lerp(sector_point_a, sector_point_b, sector_t);
 
 
+// Square that interpolates with `f_hexagon` nicely
+
+f_square6_point = function(n)
+    assert(is_num(n) && n >= 0, "'n' is not a number greater than 0")
+    let (n = n % 6)
+    n == 0 ? [1, 0] :
+    n == 1 ? [1, 1] :
+    n == 2 ? [-1, 1] :
+    n == 3 ? [-1, 0] :
+    n == 4 ? [-1, -1] :
+    n == 5 ? [1, -1] :
+    undef;
+
+f_square6 = function(t)
+    assert(is_num(t) && 0 <= t && t <= 1, "'t' is not a number between 0 and 1")
+    let (
+        sector = floor(t * 6),
+        sector_t = t * 6 - sector,
+        sector_point_a = f_square6_point(sector),
+        sector_point_b = f_square6_point(sector + 1)
+    ) lerp(sector_point_a, sector_point_b, sector_t);
+
+
 f_hexagon_point = function(n)
     assert(is_num(n) && n >= 0, "'n' is not a number greater than 0")
     let (n = n % 6)

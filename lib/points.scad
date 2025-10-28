@@ -61,6 +61,21 @@ function pts_scale3(slice, s) =
     [ for (p = slice) [p.x * s.x, p.y * s.y, p.z * s.z] ];
 
 
+function pts_mirror_x(slice) =
+    assert(_assert_slice(slice))
+    [ for (p = slice) [- p.x, p.y, p.z] ];
+
+
+function pts_mirror_y(slice) =
+    assert(_assert_slice(slice))
+    [ for (p = slice) [p.x, - p.y, p.z] ];
+
+
+function pts_mirror_z(slice) =
+    assert(_assert_slice(slice))
+    [ for (p = slice) [p.x, p.y, - p.z] ];
+
+
 function pts_rotate2(flat, r) =
     assert(_assert_flat(flat))
     assert(is_num(r))
@@ -97,6 +112,11 @@ function pts_rotate3(s, r) =
 function pts_inflate(flat) =
     assert(_assert_flat(flat))
     [ for (point = flat) [point.x, point.y, 0] ];
+
+
+function pts_inflate_xz(flat) =
+    assert(_assert_flat(flat))
+    [ for (point = flat) [point.x, 0, point.y] ];
 
 
 module pts_extrude(slices, loop = true, quads = true) {

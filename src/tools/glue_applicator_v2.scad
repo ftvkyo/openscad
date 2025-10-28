@@ -7,12 +7,12 @@ include <../../lib/points_shapes.scad>
 
 tip_width = 10.0; // [5.0 : 2.5 : 25.0]
 tip_length = 20.0; // [10.0 : 2.5 : 30.0]
-tip_angle = 45.0; // [30.0 : 5.0 : 60.0]
+tip_angle = 45.0; // [10.0 : 5.0 : 60.0]
 
 tip_rim_width = 0.5; // [0.0 : 0.25 : 1.0]
 tip_rim_depth = 0.5; // [0.0 : 0.25 : 1.0]
 
-handle_joiner_length = 30.0;
+handle_joiner_length = 20.0;
 
 handle_sections = 4;
 handle_section_length = 22.5;
@@ -21,7 +21,7 @@ handle_radius_low = 4.0;
 handle_radius_high = 5.0;
 handle_radius_hook = 3.0;
 
-handle_hook_radius = 10.0;
+handle_hook_radius = 12.5;
 
 
 module __hidden__() {}
@@ -31,7 +31,7 @@ assert(handle_radius_low <= handle_radius_high);
 $fn = $preview ? 24 : 48;
 
 tip_profile_length = tip_length / sin(tip_angle);
-tip_back_halflength = tip_length / cos(tip_angle) - tip_length;
+tip_back_halflength = tip_profile_length * (1 - cos(tip_angle));
 
 handle_radius_high_inner = handle_radius_high * sqrt(3) / 2;
 
@@ -42,7 +42,7 @@ handle_radius_high_inner = handle_radius_high * sqrt(3) / 2;
 
 
 module tip_profile() {
-    o_inner = max(tip_rim_width, tip_rim_depth) * 4;
+    o_inner = max(tip_rim_width, tip_rim_depth) * 3;
     o_outer = min(tip_rim_width, tip_rim_depth) * 2/3;
 
     offset(o_outer)
@@ -66,7 +66,7 @@ module tip_side() {
         fn = $fn;
 
         translate([- tip_length / tan(tip_angle), 0, 0])
-        rotate_extrude(angle = tip_angle, $fn = fn * 2)
+        rotate_extrude(angle = tip_angle, $fn = fn * (360 / tip_angle))
         tip_profile($fn = fn);
 
         cube([tip_back_halflength, tip_length + tip_rim_depth, tip_width + tip_rim_width * 2]);
@@ -176,7 +176,7 @@ module handle_joiner() {
 }
 
 
-module handle_end() {
+module handle_hook() {
     a = function(t)
         let (p = f_hexagon(t))
         [p.x, p.y + sqrt(3) / 2];
@@ -193,7 +193,7 @@ module handle_end() {
     b_scale = handle_radius_hook;
     c_scale = handle_radius_hook;
 
-    ab_angle = 45;
+    ab_angle = 30;
     ab_ease_shape = function(t) ease_in_out_sine(t);
     ab_ease_scale = function(t) ease_in_out_sine(t);
 
@@ -201,7 +201,7 @@ module handle_end() {
     bc_ease_shape = function(t) ease_in_out_sine(t);
     bc_ease_scale = function(t) ease_in_out_sine(t);
 
-    angle_factor = 2.5;
+    angle_factor = 6.25;
 
     f_ab = function(t)
         pts_translate3(
@@ -249,6 +249,8 @@ module handle_end() {
             [handle_hook_radius, 0, 0] + bc_offset
         );
 
+
+
     pts_extrude([ for (t = [0 : 1 / $fn : 1]) f_ab(t) ], loop = false);
 
     pts_extrude([ for (t = [0 : 1 / $fn : 1]) f_bc(t) ], loop = false);
@@ -286,7 +288,7 @@ module handle() {
             translate([0, 0, handle_sections * handle_section_length])
             rotate([90, 0, 180])
             mirror([1, 0, 0])
-            handle_end();
+            handle_hook();
         }
 
         boundary = [handle_radius_high * 8, handle_sections * handle_section_length * 2, handle_radius_high_inner * 2];

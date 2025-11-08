@@ -18,6 +18,9 @@ function ease_in_out_cubic(t) =
     ? 4 * t * t * t
     : 1 - pow(-2 * t + 2, 3) / 2;
 
+function ease_in_pow(n) = function(t) pow(t, n);
+function ease_out_pow(n) = function(t) 1 - pow(1 - t, n);
+
 function ease_in_elastic(t) =
     let (c4 = 360 / 3)
     t == 0 ? 0 :

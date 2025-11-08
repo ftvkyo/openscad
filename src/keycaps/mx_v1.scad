@@ -7,11 +7,7 @@ include <../../lib/points_shapes.scad>
 
 /* [General] */
 
-// Keycap Row (0 = all, 1->5 = top->bottom)
-row = 1; // [0 : 5]
-
-// Add a tactile dot
-dot = false;
+key = "all"; // [all, row1, row2, row3, row4, row4dot, row5, row6]
 
 inspect = false;
 
@@ -35,7 +31,7 @@ base_side = 18.0;
 
 base_gap = 0.8;
 
-shell_thickness = 1.5;
+shell_thickness = 1.0;
 
 stem_radius = 2.5;
 stem_height = 4.5;
@@ -52,8 +48,9 @@ support_width = 1.0;
 pad_heights = [
     12.5,
     9.5,
-    7.4,
     7.5,
+    7.5,
+    8.5,
     8.5,
 ];
 
@@ -62,10 +59,12 @@ pad_angles = [
     7.5,
     3.0,
     -3.0,
-    -7.0,
+    -7.5,
+    -7.5,
 ];
 
 pad_offsets = [
+    -1.5,
     -1.0,
     -0.5,
     0.0,
@@ -75,7 +74,7 @@ pad_offsets = [
 
 
 fn_z = $preview ? 12 : 24;
-fn_r = $preview ? 96 : 144;
+fn_r = $preview ? 48 : 144;
 
 
 f_pad = function(t) f_squircle(pad_squariness)(t);
@@ -164,7 +163,7 @@ module supports(row) {
 }
 
 
-module keycap(row) {
+module keycap(row, dot = false) {
     module antishell() {
         antishell_scale_xy = (base_side - shell_thickness * 2) / base_side;
         antishell_scale_z = (pad_heights[row] - shell_thickness * 2) / pad_heights[row];
@@ -209,14 +208,25 @@ module keycap(row) {
 
 
 module assembly() {
-    if (row == 0) {
-        for (r = [0 : 4])
+    render()
+    if (key == "all") {
+        for (r = [0 : 5])
         translate([0, - r * (base_side + base_gap), 0])
-        render()
         keycap(r);
-    } else {
-        render()
-        keycap(row-1);
+    } else if (key == "row1") {
+        keycap(0);
+    } else if (key == "row2") {
+        keycap(1);
+    } else if (key == "row3") {
+        keycap(2);
+    } else if (key == "row4") {
+        keycap(3);
+    } else if (key == "row4dot") {
+        keycap(3, dot = true);
+    } else if (key == "row5") {
+        keycap(4);
+    } else if (key == "row6") {
+        keycap(5);
     }
 }
 

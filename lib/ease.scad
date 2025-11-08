@@ -4,6 +4,10 @@ function ease_in_sine(t) = 1 - cos(t * 90);
 function ease_out_sine(t) = sin(t * 90);
 function ease_in_out_sine(t) = (cos(t * 180) - 1) / -2;
 
+function ease_in_asine(t) = acos(1 - t) / 90;
+function ease_out_asine(t) = asin(t) / 90;
+function ease_in_out_asine(t) = acos(1 - t * 2) / 180;
+
 function ease_in_quadratic(t) = t * t;
 function ease_out_quadratic(t) = 1 - pow(1 - t, 2);
 function ease_in_out_quadratic(t) =

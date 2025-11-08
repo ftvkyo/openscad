@@ -64,7 +64,7 @@ pad_angles = [
 ];
 
 pad_offsets = [
-    -1.5,
+    -1.0,
     -1.0,
     -0.5,
     0.0,
@@ -176,14 +176,14 @@ module keycap(row, dot = false) {
         difference() {
             body(row);
 
+            antishell();
+
             depression_scale_xy = pad_side * sqrt(2) / 2;
 
             translate([0, pad_offsets[row], pad_heights[row] + pad_depression / 2])
             rotate([pad_angles[row], 0, 0])
             scale([depression_scale_xy, depression_scale_xy, pad_depression])
             sphere(1, $fn = 48);
-
-            antishell();
         }
     }
 

@@ -176,3 +176,18 @@ f_star12_rot23 = function(t)
         sector_point_a = f_star12_point(sector + 23),
         sector_point_b = f_star12_point(sector + 24)
     ) lerp(sector_point_a, sector_point_b, sector_t);
+
+
+f_squircle = function(s)
+    assert(is_num(s) && 0 <= s && s <= 1, "'s' is not a number between 0 and 1")
+    function(t)
+    assert(is_num(t) && 0 <= t && t <= 1, "'t' is not a number between 0 and 1")
+    let (
+        theta = t * 359.99,
+        p = sqrt(2) / s / sin(2 * theta) * sqrt(1 - sqrt(1 - s^2 * sin(2 * theta)^2))
+    )
+    assert(is_num(p))
+    [
+        cos(theta) * abs(p),
+        sin(theta) * abs(p),
+    ];

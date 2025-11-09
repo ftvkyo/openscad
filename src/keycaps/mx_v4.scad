@@ -16,6 +16,9 @@ key_row = 1; // [1 : 6]
 // Add a tactile bump
 key_bump = false;
 
+// Reinforce the stem (not compatible with box switches)
+key_reinforced_stem = false;
+
 
 /* [Debug] */
 
@@ -42,9 +45,12 @@ base_squariness = 0.99;
 
 shell_thickness = 1.0;
 
-stem_radius = 2.5;
 stem_height = 4.5;
 stem_offset = 1.0;
+
+stem_radius = 2.5;
+stem_reinforced_width_x = 5.0;
+stem_reinforced_width_y = 6.5;
 
 stem_hole_depth = 3.5;
 stem_hole_width1 = 1.4;
@@ -230,7 +236,13 @@ module shell(row) {
 module stem(row, hollow = true) {
     translate([0, 0, stem_offset])
     difference() {
-        cylinder(h = pad_heights[row] - stem_offset, r = stem_radius, $fn = 24);
+        height = pad_heights[row] - stem_offset;
+        if (key_reinforced_stem) {
+            translate([0, 0, height / 2])
+            cube([stem_reinforced_width_x, stem_reinforced_width_y, height], center = true);
+        } else {
+            cylinder(h = height, r = stem_radius, $fn = 24);
+        }
 
         if (hollow)
         translate([0, 0, stem_hole_depth / 2 - 0.01]) {

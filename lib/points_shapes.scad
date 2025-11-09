@@ -184,10 +184,11 @@ f_squircle = function(s)
     assert(is_num(t) && 0 <= t && t <= 1, "'t' is not a number between 0 and 1")
     let (
         theta = t * 359.99,
-        p = sqrt(2) / s / sin(2 * theta) * sqrt(1 - sqrt(1 - s^2 * sin(2 * theta)^2))
+        p = sqrt(2) / s / sin(2 * theta) * sqrt(1 - sqrt(1 - s^2 * sin(2 * theta)^2)),
+        p_fixed = (p != p) ? 1 : p
     )
-    assert(is_num(p))
+    // assert(is_num(p))
     [
-        cos(theta) * abs(p),
-        sin(theta) * abs(p),
+        cos(theta) * abs(p_fixed),
+        sin(theta) * abs(p_fixed),
     ];

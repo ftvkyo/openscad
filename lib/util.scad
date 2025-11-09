@@ -10,6 +10,30 @@ function _assert_vec3(vec) =
     true;
 
 
+function _assert_num_or_vec3(val) =
+    assert(is_num(val) || (is_list(val) && len(val) == 3), "'val' is not a number nor a list of 3 elements")
+    assert(is_num(val) || (is_num(vec.x) && is_num(vec.y) && is_num(vec.z)), "'val' component is not a number")
+    true;
+
+
+module assert_func_list(val, length = undef) {
+    assert(is_list(val), "'val' is not a list");
+    assert(is_undef(length) || (is_num(length) && len(val) == length), str("length of 'val' is not ", length));
+    for (item = val) {
+        assert(is_function(item), "an item in 'val' is not a function");
+    }
+}
+
+
+module assert_num_list(val, length = undef) {
+    assert(is_list(val), "'val' is not a list");
+    assert(is_undef(length) || (is_num(length) && len(val) == length), str("length of 'val' is not ", length));
+    for (item = val) {
+        assert(is_num(item), "an item in 'val' is not a number");
+    }
+}
+
+
 function _assert_flat(flat) =
     assert(is_list(flat) && len(flat) > 2, "a flat is not a list of more than 2 points")
     is_list([ for (point = flat)

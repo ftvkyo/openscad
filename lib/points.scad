@@ -198,3 +198,97 @@ module pts_extrude(slices, loop = true, quads = true) {
         polyhedron(points, faces, convexity = 10);
     }
 }
+
+
+function make_slice_info(
+    fn,
+    scl = [1, 1, 1],
+    rot = [0, 0, 0],
+    pos = [0, 0, 0]
+) =
+    assert(is_function(fn))
+    assert(_assert_vec3(fn(0)))
+    assert(_assert_vec3(fn(1)))
+    assert(_assert_num_or_vec3(scl))
+    assert(_assert_vec3(rot))
+    assert(_assert_vec3(pos))
+    [
+        fn,
+        is_num(scl)
+            ? scl * [1, 1, 1]
+            : scl,
+        rot,
+        pos,
+    ];
+
+function get_slice_info_fn(info) =
+    info[0];
+
+function get_slice_info_scl(info) =
+    info[1];
+
+function get_slice_info_rot(info) =
+    info[2];
+
+function get_slice_info_pos(info) =
+    info[3];
+
+
+module pts_extrude_slice_info_sequence(
+    slices_info,
+    slices_counts,
+    eases,
+    eases_scl,
+    eases_rot,
+    eases_pos,
+    loop = false
+) {
+    assert(is_list(slices_info));
+
+    n = len(slices_info);
+
+    assert_num_list(slices_counts, n - 1);
+
+    assert_func_list(eases, n - 1);
+    assert_func_list(eases_scl, n - 1);
+    assert_func_list(eases_rot, n - 1);
+    assert_func_list(eases_pos, n - 1);
+
+    function section_slices_fn(i) = function(t)
+        let (
+            a = slices_info[i],
+            a_fn = get_slice_info_fn(a),
+            a_scl = get_slice_info_scl(a),
+            a_rot = get_slice_info_rot(a),
+            a_pos = get_slice_info_pos(a),
+            b = slices_info[i + 1],
+            b_fn = get_slice_info_fn(b),
+            b_scl = get_slice_info_scl(b),
+            b_rot = get_slice_info_rot(b),
+            b_pos = get_slice_info_pos(b),
+            ease_interp = eases[i],
+            ease_scl = eases_scl[i],
+            ease_rot = eases_rot[i],
+            ease_pos = eases_pos[i]
+        )
+        pts_translate3(
+            pts_rotate3(
+                pts_scale3(
+                    pts_f_interp(
+                        a_fn,
+                        b_fn,
+                        ease_interp(t)
+                    ),
+                    lerp_free(a_scl, b_scl, ease_scl(t))
+                ),
+                lerp_free(a_rot, b_rot, ease_rot(t))
+            ),
+            lerp_free(a_pos, b_pos, ease_pos(t))
+        );
+
+    section_slices = [ for (i = [0 : n - 2])
+        [ for (t = [0 : 1 / slices_counts[i] : 1]) section_slices_fn(i)(t) ]
+    ];
+
+    pts_extrude([ for (slice = section_slices) each slice ], loop = loop);
+}

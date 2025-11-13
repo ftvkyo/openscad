@@ -1,17 +1,18 @@
 use <../../lib/maths.scad>
 use <../../lib/points.scad>
 use <../../lib/ease.scad>
+use <../../lib/util.scad>
 
 include <../../lib/points_shapes.scad>
 
 
 /* [Key] */
 
-// 1 = top, 6 = bottom
-key_row = 1; // [1 : 6]
+// 1 = top, 4 = home row, 6 = bottom, 7 = thumb
+key_row = 1; // [1 : 7]
 
-// Width of the key in units
-// key_units = 1.0; // [1.0 : 0.25 : 10.0]
+// Make the key double width
+key_double = false;
 
 // Add a tactile bump
 key_bump = false;
@@ -36,6 +37,8 @@ module __hidden__() {}
  * Static parameters *
  * ================= */
 
+key_gap = 1.2;
+
 pad_side = 13.0;
 pad_squariness = 0.5;
 pad_dimple_depth = 0.75;
@@ -58,12 +61,13 @@ stem_hole_width2 = 4.1;
 
 stem_support_width = 1.0;
 
-key_gap = 0.8;
-
 
 /* ================== *
  * Dynamic parameters *
  * ================== */
+
+key_double_stem_period = 11.7;
+key_double_expansion = key_double ? base_side + key_gap : 0.0;
 
 pad_heights = [
     12.5,
@@ -72,6 +76,7 @@ pad_heights = [
     7.5,
     8.5,
     8.5,
+    7.0,
 ];
 
 pad_angles = [
@@ -81,6 +86,7 @@ pad_angles = [
     -3.0,
     -7.5,
     -7.5,
+    7.5,
 ];
 
 pad_offsets = [
@@ -90,6 +96,7 @@ pad_offsets = [
     0.0,
     -0.5,
     -1.0,
+    0.0,
 ];
 
 
@@ -146,7 +153,28 @@ $fn = $preview ? 48 : 192;
  * ======= */
 
 
-module body(row) {
+module section_left() {
+    translate([0, - key_double_expansion / 2, 0])
+    half3("y-")
+    children();
+}
+
+module section_middle() {
+    rotate([90, 0, 0])
+    linear_extrude(key_double_expansion, center = true)
+    projection(cut = true)
+    rotate([-90, 0, 0])
+    children();
+}
+
+module section_right() {
+    translate([0, key_double_expansion / 2, 0])
+    half3("y+")
+    children();
+}
+
+
+module body_base(row) {
     slices_info = [
         make_slice_info(
             fn_pad,
@@ -192,7 +220,7 @@ module body(row) {
 }
 
 
-module shell(row) {
+module shell_base(row) {
     slices_info = [
         make_slice_info(
             fn_pad,
@@ -233,22 +261,66 @@ module shell(row) {
 }
 
 
-module stem(row, hollow = true) {
-    translate([0, 0, stem_offset])
-    difference() {
-        height = pad_heights[row] - stem_offset;
-        if (key_reinforced_stem) {
-            translate([0, 0, height / 2])
-            cube([stem_reinforced_width_x, stem_reinforced_width_y, height], center = true);
-        } else {
-            cylinder(h = height, r = stem_radius, $fn = 24);
-        }
+module body(row) {
+    if (!key_double) {
+        body_base(row);
+    } else {
+        section_left()
+        body_base(row);
 
-        if (hollow)
-        translate([0, 0, stem_hole_depth / 2 - 0.01]) {
-            cube([stem_hole_width1, stem_hole_width2, stem_hole_depth], center = true);
-            cube([stem_hole_width2, stem_hole_width1, stem_hole_depth], center = true);
+        section_middle()
+        body_base(row);
+
+        section_right()
+        body_base(row);
+    }
+}
+
+
+module shell(row) {
+    if (!key_double) {
+        shell_base(row);
+    } else {
+        section_left()
+        shell_base(row);
+
+        section_middle()
+        shell_base(row);
+
+        section_right()
+        shell_base(row);
+    }
+}
+
+
+module stem(row, hollow = true) {
+    module single() {
+        translate([0, 0, stem_offset])
+        difference() {
+            height = pad_heights[row] - stem_offset;
+            if (key_reinforced_stem) {
+                translate([0, 0, height / 2])
+                cube([stem_reinforced_width_x, stem_reinforced_width_y, height], center = true);
+            } else {
+                cylinder(h = height, r = stem_radius, $fn = 24);
+            }
+
+            if (hollow)
+            translate([0, 0, stem_hole_depth / 2 - 0.01]) {
+                cube([stem_hole_width1, stem_hole_width2, stem_hole_depth], center = true);
+                cube([stem_hole_width2, stem_hole_width1, stem_hole_depth], center = true);
+            }
         }
+    }
+
+    single();
+
+    if (key_double) {
+        translate([0, key_double_stem_period, 0])
+        single();
+
+        translate([0, - key_double_stem_period, 0])
+        single();
     }
 }
 
@@ -258,8 +330,17 @@ module stem_supports(row) {
 
     difference() {
         translate([0, 0, stem_offset + stem_height + support_height / 2]) {
-            cube([stem_support_width, base_side, support_height], center = true);
+            cube([stem_support_width, base_side + key_double_expansion, support_height], center = true);
+
             cube([base_side, stem_support_width, support_height], center = true);
+
+            if (key_double) {
+                translate([0, key_double_stem_period, 0])
+                cube([base_side, stem_support_width, support_height], center = true);
+
+                translate([0, - key_double_stem_period, 0])
+                cube([base_side, stem_support_width, support_height], center = true);
+            }
         }
 
         stem(row, hollow = false);
@@ -269,7 +350,7 @@ module stem_supports(row) {
 
 module row_marker(row) {
     spread = base_side - shell_thickness * 6;
-    spread_gap = spread / 5;
+    spread_gap = spread / 6;
 
     corner = [
         - base_side / 2 + shell_thickness,
@@ -315,7 +396,7 @@ module keycap(row, dot = false) {
 
 module assembly() {
     if (display_all) {
-        for (row = [0 : 5])
+        for (row = [0 : 6])
         translate([row * (base_side + key_gap), 0, 0])
         keycap(row, dot = key_bump);
     } else {

@@ -120,14 +120,14 @@ eases = [
     function(t) t,
     function(t) 1 - ease_in_pow(4)(1 - t),
     function(t) t,
-    function(t) t,
+    function(t) ease_in_pow(4)(t),
 ];
 
 eases_scl = [
     function(t) ease_in_out_asine(t),
     function(t) ease_in_asine(t),
     function(t) t,
-    function(t) t,
+    function(t) ease_out_asine(t),
 ];
 
 eases_rot = [
